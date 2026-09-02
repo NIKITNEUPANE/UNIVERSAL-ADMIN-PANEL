@@ -18,7 +18,9 @@ import {
   FilterX,
   X,
   ArrowLeft,
-  ChevronRight
+  ChevronRight,
+  Package,
+  Sparkles
 } from 'lucide-react';
 import { Category, Product } from '@/lib/types/commerce';
 import { CategoryService, CategoryTreeItem } from '@/lib/services/category-service';
@@ -366,52 +368,118 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* Compact Stat Chips (Liquid Glass Subcards) */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="liquid-glass-subcard rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-slate-700 shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-slate-400" />
-          <span className="text-xs font-semibold text-slate-500">Categories:</span>
-          <span className="text-xs font-black text-slate-900 font-mono">{totalRootCount}</span>
-        </div>
-
-        <div className="liquid-glass-subcard rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-indigo-700 shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-indigo-500" />
-          <span className="text-xs font-semibold text-slate-500">Subcategories:</span>
-          <span className="text-xs font-black text-indigo-600 font-mono">{totalSubcategoriesCount}</span>
-        </div>
-
-        <div className="liquid-glass-subcard rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-emerald-700 shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold text-slate-500">Active:</span>
-          <span className="text-xs font-black text-emerald-600 font-mono">{activeCount}</span>
-        </div>
-
-        <div className="liquid-glass-subcard rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-violet-700 shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-violet-500" />
-          <span className="text-xs font-semibold text-slate-500">Total Products:</span>
-          <span className="text-xs font-black text-violet-600 font-mono">{totalProductsCount}</span>
-        </div>
-
-        {archivedCount > 0 && (
-          <div className="liquid-glass-subcard rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-slate-500 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-slate-300" />
-            <span className="text-xs font-semibold text-slate-500">Archived:</span>
-            <span className="text-xs font-black text-slate-600 font-mono">{archivedCount}</span>
+      {/* Executive Metric Cards (Liquid Glass Dashboard Stats) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Metric 1: Hierarchy Structure */}
+        <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-indigo-50/20 to-white flex items-center gap-3.5 group hover:border-indigo-300 transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+            <FolderTree className="w-5 h-5" />
           </div>
-        )}
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              Departments
+            </span>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-xl font-black text-slate-900 font-mono">
+                {totalRootCount}
+              </span>
+              <span className="text-xs font-semibold text-slate-500">
+                Root
+              </span>
+            </div>
+            <span className="text-[11px] text-indigo-600 font-medium block mt-0.5">
+              {totalSubcategoriesCount} nested subcategories
+            </span>
+          </div>
+        </div>
 
-        {isFiltered && (
+        {/* Metric 2: Catalog Products */}
+        <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-emerald-50/20 to-white flex items-center gap-3.5 group hover:border-emerald-300 transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+            <Package className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              Catalog Items
+            </span>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-xl font-black text-slate-900 font-mono">
+                {totalProductsCount}
+              </span>
+              <span className="text-xs font-semibold text-slate-500">
+                Products
+              </span>
+            </div>
+            <span className="text-[11px] text-emerald-600 font-medium block mt-0.5">
+              Mapped in active categories
+            </span>
+          </div>
+        </div>
+
+        {/* Metric 3: Linked Specifications */}
+        <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-violet-50/20 to-white flex items-center gap-3.5 group hover:border-violet-300 transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+            <SlidersHorizontal className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              Specifications
+            </span>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-xl font-black text-slate-900 font-mono">
+                {totalLinkedSpecs}
+              </span>
+              <span className="text-xs font-semibold text-slate-500">
+                Linked Rules
+              </span>
+            </div>
+            <span className="text-[11px] text-violet-600 font-medium block mt-0.5">
+              Enforcing product schemas
+            </span>
+          </div>
+        </div>
+
+        {/* Metric 4: Active Health Status */}
+        <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-amber-50/20 to-white flex items-center gap-3.5 group hover:border-amber-300 transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              Catalog Status
+            </span>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-xl font-black text-slate-900 font-mono">
+                {activeCount}
+              </span>
+              <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Active
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
+              {archivedCount > 0 ? `${archivedCount} archived categories` : '100% catalog healthy'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {isFiltered && (
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs text-slate-500">
+            Filtered results: showing <strong className="text-slate-800 font-bold">{totalVisibleCount}</strong> categories
+          </span>
           <button
             type="button"
             onClick={resetFilters}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-colors cursor-pointer shadow-2xs ml-auto"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
             title="Clear all active filters"
           >
             <FilterX className="w-3.5 h-3.5" />
-            <span>Reset Filter ({totalVisibleCount} shown)</span>
+            <span>Reset Filters</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ================= LIQUID GLASS FILTER BAR ================= */}
       <div className="liquid-glass-card rounded-2xl p-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md shadow-indigo-500/[0.03]">

@@ -324,28 +324,77 @@ export function CategoryCardGrid({
 
   return (
     <div className="space-y-4">
-      {/* Back Button Just at the Top of the Cards */}
+      {/* Premium Department Overview Banner when Drilled */}
       {drilledCategory && (
-        <div className="flex items-center justify-between pb-1 pt-0.5 flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setDrilledId(null)}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 bg-white hover:bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
-            title="Return to category portal"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-slate-500 group-hover:text-indigo-600" />
-            <span>Back to Category Portal</span>
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 font-medium">
-              Subcategories in <strong className="text-slate-800 font-bold">{drilledCategory.name}</strong> ({displayCategories.length})
-            </span>
+        <div className="liquid-glass-card rounded-3xl p-5 border border-slate-200/90 shadow-sm bg-gradient-to-r from-white via-indigo-50/25 to-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-100 shrink-0 shadow-xs">
+              <img
+                src={getCategoryThumbnail(drilledCategory)}
+                alt={drilledCategory.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setDrilledId(null)}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Departments</span>
+                </button>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                <h2 className="text-lg font-black text-slate-900 tracking-tight truncate">
+                  {drilledCategory.name}
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{drilledCategory.status}</span>
+                </span>
+              </div>
+              {drilledCategory.description && (
+                <p className="text-xs text-slate-500 mt-1 line-clamp-1 max-w-2xl">
+                  {drilledCategory.description}
+                </p>
+              )}
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-1.5 flex-wrap">
+                <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                  <FolderTree className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>{displayCategories.length} {displayCategories.length === 1 ? 'Subcategory' : 'Subcategories'}</span>
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="font-mono text-slate-500 text-[11px]">#{drilledCategory.slug}</span>
+                {drilledCategory.attributes && drilledCategory.attributes.length > 0 && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-indigo-600 font-medium flex items-center gap-1">
+                      <SlidersHorizontal className="w-3 h-3" />
+                      <span>{drilledCategory.attributes.length} schema specifications</span>
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
+            <button
+              type="button"
+              onClick={() => setDrilledId(null)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+              <span>Back to Portal</span>
+            </button>
+
             <button
               type="button"
               onClick={() => onAddSubcategory(drilledCategory)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               <span>+ Add Subcategory</span>
             </button>
           </div>
@@ -361,6 +410,11 @@ export function CategoryCardGrid({
           const isParentCard = !item.parent_id;
           const productCount = productCountMap.get(item.id) || 0;
 
+          // Find children for subcategory preview chips
+          const treeNode = categoryTree.find((p) => p.id === item.id);
+          const childCategories = treeNode ? treeNode.children : [];
+          const attachedAttributes = item.attributes || [];
+
           return (
             <div
               key={item.id}
@@ -371,9 +425,9 @@ export function CategoryCardGrid({
                   onManageSpecs(item, 'products');
                 }
               }}
-              className="liquid-glass-card rounded-2xl p-3 flex flex-col justify-between hover:shadow-md hover:border-indigo-300/80 transition-all duration-200 group relative cursor-pointer"
+              className="liquid-glass-card rounded-2xl p-3 flex flex-col justify-between hover:shadow-lg hover:border-indigo-300 transition-all duration-200 group relative cursor-pointer bg-white"
             >
-              <div>
+              <div className="space-y-3">
                 {/* 1. Top Image Showcase Box (Full Box Fit) */}
                 <div className="w-full h-36 sm:h-40 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center justify-center relative overflow-hidden">
                   {imageUrl ? (
@@ -393,6 +447,20 @@ export function CategoryCardGrid({
                       {style.emoji}
                     </div>
                   )}
+
+                  {/* Top-Left Category Department/Subcategory Badge */}
+                  <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded-lg bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold tracking-wider uppercase border border-white/20 shadow-xs">
+                      {isParentCard ? 'Department' : 'Subcategory'}
+                    </span>
+                    <span
+                      className={`w-2 h-2 rounded-full ring-2 ring-white/60 ${
+                        item.status === 'active'
+                          ? 'bg-emerald-400 animate-pulse'
+                          : 'bg-slate-400'
+                      }`}
+                    />
+                  </div>
 
                   {/* Top Right 3-Dots Menu Button */}
                   <div
@@ -512,26 +580,94 @@ export function CategoryCardGrid({
                   </div>
                 </div>
 
-                {/* 2. Bottom Details (Name & Sub-category / Product count) */}
-                <div className="pt-3 px-1">
-                  <h3 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
-                    {item.name}
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mt-0.5 flex-wrap">
-                    {isParentCard ? (
-                      <>
-                        <span>{subCount} {subCount === 1 ? 'sub-category' : 'sub-categories'}</span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-slate-600 font-semibold">
-                          {productCount} {productCount === 1 ? 'product' : 'products'}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-slate-600 font-semibold">
-                        {productCount} {productCount === 1 ? 'product' : 'products'}
+                {/* 2. Details Section (Title, Slug, Description, Subcategories, Specs) */}
+                <div className="px-1 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono text-[10px] text-slate-400 block mt-0.5">
+                        #{item.slug}
                       </span>
-                    )}
+                    </div>
                   </div>
+
+                  {/* Description Snippet */}
+                  {item.description && (
+                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed font-normal">
+                      {item.description}
+                    </p>
+                  )}
+
+                  {/* Subcategories Quick Preview Chips (For Department Cards) */}
+                  {isParentCard && childCategories.length > 0 && (
+                    <div className="pt-1 flex items-center gap-1.5 flex-wrap">
+                      {childCategories.slice(0, 3).map((sub) => (
+                        <span
+                          key={sub.id}
+                          className="px-2 py-0.5 rounded-lg bg-slate-100/90 text-slate-700 text-[10px] font-semibold border border-slate-200/60"
+                        >
+                          {sub.name}
+                        </span>
+                      ))}
+                      {childCategories.length > 3 && (
+                        <span className="px-1.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-100">
+                          +{childCategories.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Attached Specifications Preview Chips */}
+                  {attachedAttributes.length > 0 && (
+                    <div className="pt-0.5 flex items-center gap-1 flex-wrap">
+                      {attachedAttributes.slice(0, 2).map((config) => {
+                        const attrName = config.attribute?.name || 'Specification';
+                        return (
+                          <span
+                            key={config.id}
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-medium border flex items-center gap-1 ${
+                              config.is_required
+                                ? 'bg-rose-50 text-rose-700 border-rose-200/80 font-semibold'
+                                : 'bg-slate-50 text-slate-600 border-slate-200/60'
+                            }`}
+                          >
+                            <span>{attrName}</span>
+                            {config.is_required && (
+                              <span className="text-[8px] text-rose-500 font-extrabold uppercase">Req</span>
+                            )}
+                          </span>
+                        );
+                      })}
+                      {attachedAttributes.length > 2 && (
+                        <span className="text-[10px] text-slate-400 font-medium pl-0.5">
+                          +{attachedAttributes.length - 2} specs
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 3. Bottom Meta & Action Footer */}
+              <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-slate-700 flex items-center gap-1 text-[11px]">
+                    <Package className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>{productCount} {productCount === 1 ? 'product' : 'products'}</span>
+                  </span>
+                  {isParentCard && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-500 font-medium text-[11px]">{subCount} subs</span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
+                  <span>{isParentCard ? 'Explore' : 'View Hub'}</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>
             </div>
