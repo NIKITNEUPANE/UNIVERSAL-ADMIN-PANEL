@@ -89,7 +89,7 @@ export function CategoryTableView({
                       }`}
                     >
                       {isRoot ? <Layers className="w-3 h-3" /> : <FolderTree className="w-3 h-3" />}
-                      <span>{isRoot ? 'Department' : 'Subcategory'}</span>
+                      <span>{isRoot ? 'Category' : 'Sub-Category'}</span>
                     </span>
                   </td>
 

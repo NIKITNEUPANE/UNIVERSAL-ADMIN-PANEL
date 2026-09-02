@@ -328,7 +328,7 @@ export function CategoryAttributesDrawer({
                     <span>Parent: {parentCategory.name}</span>
                   </span>
                 ) : (
-                  <span className="text-slate-400">Department</span>
+                  <span className="text-slate-400">Category</span>
                 )}
                 <span className="text-slate-300">•</span>
                 <span className="font-semibold text-slate-700">

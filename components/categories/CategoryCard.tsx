@@ -69,7 +69,7 @@ export function CategoryCard({
                 }`}
               >
                 {isRoot ? <Layers className="w-2.5 h-2.5" /> : <FolderTree className="w-2.5 h-2.5" />}
-                <span>{isRoot ? 'Department' : 'Subcategory'}</span>
+                <span>{isRoot ? 'Category' : 'Sub-Category'}</span>
               </span>
               <div className="text-[10px] font-mono text-slate-400 mt-0.5">#{category.sort_order ?? 0}</div>
             </div>

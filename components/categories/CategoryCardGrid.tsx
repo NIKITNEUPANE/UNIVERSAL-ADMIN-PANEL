@@ -343,7 +343,7 @@ export function CategoryCardGrid({
                   className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Departments</span>
+                  <span>Categories</span>
                 </button>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                 <h2 className="text-lg font-black text-slate-900 tracking-tight truncate">
@@ -448,10 +448,10 @@ export function CategoryCardGrid({
                     </div>
                   )}
 
-                  {/* Top-Left Category Department/Subcategory Badge */}
+                  {/* Top-Left Category / Sub-Category Badge */}
                   <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
                     <span className="px-2 py-0.5 rounded-lg bg-slate-950/75 backdrop-blur-md text-white text-[10px] font-bold tracking-wider uppercase border border-white/20 shadow-xs">
-                      {isParentCard ? 'Department' : 'Subcategory'}
+                      {isParentCard ? 'Category' : 'Sub-Category'}
                     </span>
                     <span
                       className={`w-2 h-2 rounded-full ring-2 ring-white/60 ${
@@ -660,13 +660,13 @@ export function CategoryCardGrid({
                   {isParentCard && (
                     <>
                       <span className="text-slate-300">•</span>
-                      <span className="text-slate-500 font-medium text-[11px]">{subCount} subs</span>
+                      <span className="text-slate-500 font-medium text-[11px]">{subCount} {subCount === 1 ? 'sub-category' : 'sub-categories'}</span>
                     </>
                   )}
                 </div>
 
                 <div className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
-                  <span>{isParentCard ? 'Explore' : 'View Hub'}</span>
+                  <span>{isParentCard ? 'Sub-Categories' : 'View Hub'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>

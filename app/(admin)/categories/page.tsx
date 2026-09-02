@@ -377,18 +377,18 @@ export default function CategoriesPage() {
           </div>
           <div className="min-w-0">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              Departments
+              Categories
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-xl font-black text-slate-900 font-mono">
                 {totalRootCount}
               </span>
               <span className="text-xs font-semibold text-slate-500">
-                Root
+                Categories
               </span>
             </div>
             <span className="text-[11px] text-indigo-600 font-medium block mt-0.5">
-              {totalSubcategoriesCount} nested subcategories
+              {totalSubcategoriesCount} Sub-Categories
             </span>
           </div>
         </div>

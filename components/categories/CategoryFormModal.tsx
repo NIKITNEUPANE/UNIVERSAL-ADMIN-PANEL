@@ -361,7 +361,7 @@ export function CategoryFormModal({
     }
 
     if (isSubcategoryMode && !parentId) {
-      setErrorMessage('A parent department is required for subcategories.');
+      setErrorMessage('A parent category is required for sub-categories.');
       return;
     }
 
@@ -883,7 +883,7 @@ export function CategoryFormModal({
                     <p>
                       {isSubcategoryMode
                         ? `Products assigned to this subcategory will automatically roll up to ${parentCategory?.name || 'its parent'} for aggregate analytics and navigation.`
-                        : 'Root categories serve as main catalog departments. You can drill inside to create and manage subcategories directly from the category portal.'}
+                        : 'Categories serve as main catalog groups. You can drill inside to create and manage sub-categories directly from the category portal.'}
                     </p>
                   </div>
                 </div>
