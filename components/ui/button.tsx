@@ -3,22 +3,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] cursor-pointer',
   {
     variants: {
       variant: {
-        default: 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-indigo-600/30',
-        secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200/80 border border-slate-200/80 shadow-xs',
-        outline: 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-xs',
-        ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-900',
-        destructive: 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100',
-        success: 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100',
+        default: 'liquid-button-primary text-white',
+        liquid: 'liquid-button-primary text-white',
+        glass: 'liquid-button-glass text-slate-800',
+        secondary: 'liquid-button-glass text-slate-800',
+        outline: 'border border-white/80 bg-white/70 backdrop-blur-md hover:bg-white text-slate-700 shadow-2xs',
+        ghost: 'hover:bg-white/60 hover:backdrop-blur-md text-slate-600 hover:text-slate-900',
+        destructive: 'bg-rose-500/10 text-rose-700 border border-rose-200/80 backdrop-blur-md hover:bg-rose-500/20 shadow-2xs',
+        success: 'bg-emerald-500/10 text-emerald-700 border border-emerald-200/80 backdrop-blur-md hover:bg-emerald-500/20 shadow-2xs',
       },
       size: {
         default: 'h-10 px-4 py-2',
-        sm: 'h-8 rounded-lg px-3 text-xs',
-        lg: 'h-12 rounded-xl px-6 text-base font-semibold',
-        icon: 'h-10 w-10 p-0',
+        sm: 'h-8.5 rounded-xl px-3 text-xs',
+        lg: 'h-12 rounded-2xl px-6 text-base font-semibold',
+        icon: 'h-10 w-10 p-0 rounded-xl',
       },
     },
     defaultVariants: {

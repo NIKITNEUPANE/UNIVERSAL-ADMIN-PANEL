@@ -49,23 +49,23 @@ export function Drawer({
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/40 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div
-          className={`w-screen ${widthClass} bg-white shadow-2xl border-l border-slate-200 flex flex-col transform transition-transform ease-out duration-300 animate-in slide-in-from-right`}
+          className={`w-screen ${widthClass} liquid-modal-panel border-l border-white/80 flex flex-col transform transition-transform ease-out duration-300 animate-in slide-in-from-right`}
         >
           {/* Header */}
-          <div className="p-6 border-b border-slate-100 flex items-start justify-between gap-4 shrink-0 bg-slate-50/50">
+          <div className="p-6 border-b border-slate-200/60 flex items-start justify-between gap-4 shrink-0 bg-white/40 backdrop-blur-md">
             <div>
               <h2 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h2>
               {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
             </div>
             <button
               onClick={onClose}
-              className="rounded-xl p-2 text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition-colors"
+              className="rounded-xl p-2 text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

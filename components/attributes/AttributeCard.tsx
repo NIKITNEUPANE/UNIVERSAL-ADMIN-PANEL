@@ -196,8 +196,8 @@ export function AttributeCard({
 
   return (
     <Card
-      className={`border-slate-200/90 glass-panel-hover shadow-xs flex flex-col justify-between transition-all ${
-        isArchived ? 'opacity-70 bg-slate-50/80 border-dashed border-slate-300' : 'bg-white'
+      className={`liquid-glass-interactive rounded-3xl shadow-xs flex flex-col justify-between transition-all ${
+        isArchived ? 'opacity-70 bg-slate-100/50 border-dashed border-slate-300' : ''
       }`}
     >
       <CardHeader className="pb-3">
@@ -205,10 +205,10 @@ export function AttributeCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
             <div
-              className={`p-2.5 rounded-xl border shrink-0 ${
+              className={`p-2.5 rounded-2xl border shrink-0 ${
                 isArchived
-                  ? 'bg-slate-200 text-slate-500 border-slate-300'
-                  : 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                  ? 'bg-slate-200/80 text-slate-500 border-slate-300'
+                  : 'liquid-glass-active text-indigo-700'
               }`}
             >
               {getTypeIcon()}
@@ -219,7 +219,7 @@ export function AttributeCard({
                   {attribute.name}
                 </CardTitle>
                 {isArchived && (
-                  <Badge variant="secondary" className="text-[10px] bg-slate-200 text-slate-700">
+                  <Badge variant="secondary" className="text-[10px] bg-slate-200/80 text-slate-700">
                     Archived
                   </Badge>
                 )}
@@ -236,7 +236,7 @@ export function AttributeCard({
               variant="ghost"
               size="sm"
               onClick={() => onEdit(attribute)}
-              className="h-8 px-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+              className="h-8 px-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-white/80 rounded-xl"
             >
               <Edit className="w-3.5 h-3.5 mr-1" />
               <span>Edit</span>
@@ -261,12 +261,12 @@ export function AttributeCard({
 
       <CardContent className="pt-0 space-y-3.5">
         {/* Section 2: DATA STRUCTURE & PRESENTATION (VISUALLY SEPARATED) */}
-        <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
+        <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl liquid-glass-inset">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
               Data Type
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-2xs">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/80 border border-white/80 text-xs font-semibold text-slate-800 shadow-2xs backdrop-blur-xs">
               {getDataTypeDisplay()}
             </span>
           </div>
@@ -275,7 +275,7 @@ export function AttributeCard({
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
               Presentation
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-2xs">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/80 border border-white/80 text-xs font-semibold text-slate-800 shadow-2xs backdrop-blur-xs">
               {getPresentationDisplay()}
             </span>
           </div>

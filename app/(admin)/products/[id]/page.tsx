@@ -18,6 +18,7 @@ import { ProductDetailHeader } from '@/components/products/ProductDetailHeader';
 import { ProductSpecsOverview } from '@/components/products/ProductSpecsOverview';
 import { ProductVariantMatrix } from '@/components/products/ProductVariantMatrix';
 import { ProductForm } from '@/components/products/ProductForm';
+import { DeleteProductModal } from '@/components/products/DeleteProductModal';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import Link from 'next/link';
@@ -96,27 +97,21 @@ export default function ProductDetailPage() {
     }
   };
 
-  // Handle Archive
-  const handleArchive = async () => {
-    if (!product) return;
-    try {
-      const updated = await ProductService.archiveProduct(product.id);
-      setProduct(updated);
-      showToast('Product archived.', 'info');
-    } catch (err: any) {
-      showToast(err.message || 'Failed to archive product', 'error');
-    }
-  };
+  // Delete Confirmation
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Handle Restore
-  const handleRestore = async () => {
+  const handleConfirmDelete = async () => {
     if (!product) return;
+    setIsDeleting(true);
     try {
-      const updated = await ProductService.restoreProduct(product.id);
-      setProduct(updated);
-      showToast('Product restored to active catalog.', 'success');
+      await ProductService.deleteProduct(product.id);
+      showToast(`Product '${product.title}' permanently deleted.`, 'success');
+      router.push('/products');
     } catch (err: any) {
-      showToast(err.message || 'Failed to restore product', 'error');
+      showToast(err.message || 'Failed to delete product', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -151,13 +146,13 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-16 animate-in fade-in duration-200">
+    <div className="w-full space-y-6 pb-16 animate-in fade-in duration-200">
       {/* Header & Metrics */}
       <ProductDetailHeader
         product={product}
         onDuplicate={handleDuplicate}
-        onArchive={handleArchive}
-        onRestore={handleRestore}
+        onDelete={() => setIsDeleteModalOpen(true)}
+        onProductUpdated={(updated) => setProduct(updated)}
       />
 
       {/* Navigation Tabs */}
@@ -207,7 +202,11 @@ export default function ProductDetailPage() {
       {/* Tab Content */}
       <div>
         {activeTab === 'overview' && (
-          <ProductSpecsOverview product={product} globalAttributes={globalAttributes} />
+          <ProductSpecsOverview
+            product={product}
+            globalAttributes={globalAttributes}
+            onProductUpdated={(updated) => setProduct(updated)}
+          />
         )}
 
         {activeTab === 'variants' && (
@@ -222,13 +221,23 @@ export default function ProductDetailPage() {
           <ProductForm
             key={`edit-form-${product.id}-${product.updated_at || Date.now()}`}
             initialProduct={product}
-            onSaved={(updated) => {
+            onSaved={async (updated) => {
               setProduct(updated);
               setActiveTab('overview');
+              await loadData();
             }}
           />
         )}
       </div>
+
+      {/* Delete Product Confirmation Modal */}
+      <DeleteProductModal
+        isOpen={isDeleteModalOpen}
+        productTitle={product.title}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

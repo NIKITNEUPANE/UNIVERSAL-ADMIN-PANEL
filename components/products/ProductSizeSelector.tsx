@@ -37,11 +37,13 @@ export function ProductSizeSelector({
 }: ProductSizeSelectorProps) {
   const [system, setSystem] = useState<SizingSystem>(value?.system || 'letter');
   const [ageFormat, setAgeFormat] = useState<AgeFormat>(value?.age_format || 'range');
-  const [sizes, setSizes] = useState<ProductSizeValue[]>(
-    value?.selected_sizes && value.selected_sizes.length > 0
-      ? value.selected_sizes
-      : SizeService.getDefaultPresets('letter')
-  );
+  const [sizes, setSizes] = useState<ProductSizeValue[]>(() => {
+    if (value?.selected_sizes && value.selected_sizes.length > 0) {
+      return value.selected_sizes;
+    }
+    const presets = SizeService.getDefaultPresets('letter');
+    return presets.map((p) => ({ ...p, is_available: false }));
+  });
 
   // New size input state
   const [customLabel, setCustomLabel] = useState('');
@@ -52,44 +54,36 @@ export function ProductSizeSelector({
   const [customNumVal, setCustomNumVal] = useState('');
   const [inputError, setInputError] = useState<string | null>(null);
 
-  // Synchronize initial default values if empty
+  // Sync state when incoming value changes
   useEffect(() => {
-    if ((!value?.selected_sizes || value.selected_sizes.length === 0) && onChange) {
-      onChange({
-        system,
-        age_format: system === 'age' ? ageFormat : undefined,
-        selected_sizes: sizes,
-      });
+    if (value) {
+      if (value.system) setSystem(value.system);
+      if (value.age_format) setAgeFormat(value.age_format);
+      if (value.selected_sizes && value.selected_sizes.length > 0) {
+        setSizes(value.selected_sizes);
+      }
     }
-  }, []);
+  }, [value]);
 
   // Synchronize when system or ageFormat changes
   const handleSystemChange = (newSystem: SizingSystem) => {
     setSystem(newSystem);
     setInputError(null);
-    const defaultPresets = SizeService.getDefaultPresets(newSystem, ageFormat);
+    const defaultPresets = SizeService.getDefaultPresets(newSystem, ageFormat).map((p) => ({
+      ...p,
+      is_available: false,
+    }));
     setSizes(defaultPresets);
-    if (onChange) {
-      onChange({
-        system: newSystem,
-        age_format: newSystem === 'age' ? ageFormat : undefined,
-        selected_sizes: defaultPresets,
-      });
-    }
   };
 
   const handleAgeFormatChange = (newFormat: AgeFormat) => {
     setAgeFormat(newFormat);
     setInputError(null);
-    const presets = SizeService.getDefaultPresets('age', newFormat);
+    const presets = SizeService.getDefaultPresets('age', newFormat).map((p) => ({
+      ...p,
+      is_available: false,
+    }));
     setSizes(presets);
-    if (onChange) {
-      onChange({
-        system: 'age',
-        age_format: newFormat,
-        selected_sizes: presets,
-      });
-    }
   };
 
   // Toggle availability of preset size

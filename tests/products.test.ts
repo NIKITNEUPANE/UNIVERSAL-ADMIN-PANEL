@@ -362,6 +362,39 @@ async function runProductTestSuite() {
     assert(duplicated.variants.length === 4, 'Duplicated product copied all 4 variants');
     assert(duplicated.variants[0].sku.endsWith('-COPY'), 'Duplicated variant SKUs have -COPY suffix');
 
+    // --------------------------------------------------------------------------
+    // Suite 11: Color Attribute & Variant SKU Search & Filtering
+    // --------------------------------------------------------------------------
+    console.log('\n--- Suite 11: Color Attribute & Variant SKU Search & Filtering ---');
+    
+    // Test 1: Search by color attribute value ("Navy Blue")
+    const navyResults = await ProductService.getProducts({ search: 'Navy Blue' });
+    assert(navyResults.length > 0, 'Found products matching color attribute value "Navy Blue"');
+    assert(
+      navyResults.some((p) => p.slug === 'organic-cotton-baby-onesie'),
+      'Baby Onesie returned when searching by color "Navy Blue"'
+    );
+
+    // Test 2: Search by partial color value ("dusty rose")
+    const roseResults = await ProductService.getProducts({ search: 'dusty rose' });
+    assert(
+      roseResults.some((p) => p.slug === 'organic-cotton-baby-onesie'),
+      'Baby Onesie returned when searching by color "dusty rose"'
+    );
+
+    // Test 3: Search by Variant SKU ("OCB-NAV-03M")
+    const skuResults = await ProductService.getProducts({ search: 'OCB-NAV-03M' });
+    assert(skuResults.length === 1, 'Found product specifically matching variant SKU "OCB-NAV-03M"');
+    assert(skuResults[0].slug === 'organic-cotton-baby-onesie', 'Correct product found via variant SKU');
+
+    // Test 4: Direct filter by color attribute ("Navy Blue")
+    const colorFilterResults = await ProductService.getProducts({ color: 'Navy Blue' });
+    assert(colorFilterResults.length > 0, 'Direct color filter returned matching products');
+
+    // Test 5: Direct filter by variant SKU ("OCB-ROS-36M")
+    const variantSkuFilterResults = await ProductService.getProducts({ variantSku: 'OCB-ROS-36M' });
+    assert(variantSkuFilterResults.length === 1, 'Direct variantSku filter returned matching product');
+
     // Cleanup
     await ProductService.deleteProduct(newProduct.id);
     await ProductService.deleteProduct(draftProduct.id);

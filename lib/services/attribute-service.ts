@@ -90,6 +90,7 @@ export interface UpdateAttributeDTO {
 export interface AttributeFilterParams {
   search?: string;
   capability?: 'all' | 'variant' | 'filterable' | 'displayable' | 'searchable' | 'archived';
+  status?: 'all' | 'active' | 'archived';
   dataType?: string;
   sortBy?: 'name' | 'created_desc' | 'updated_desc' | 'usage';
 }
@@ -576,18 +577,54 @@ let inMemoryAttributesStore: Attribute[] = [
       { id: 'vf07', attribute_id: 'a0000000-0000-0000-0000-000000000023', name: 'Hypoallergenic', key: 'hypoallergenic', display_label: 'Hypoallergenic / Sensitive Skin', sort_order: 7, status: 'active' },
     ],
   },
+
+  // 19. ALCOHOL BY VOLUME (ABV %) (Number / Decimal, Product Info, Filterable)
+  {
+    id: 'a0000000-0000-0000-0000-000000000024',
+    name: 'Alcohol by Volume (ABV)',
+    key: 'abv',
+    storefront_label: 'ABV (%)',
+    description: 'Percentage of alcohol by volume in the beverage',
+    help_text: 'Enter the alcohol content percentage (e.g. 40.0 for 40% ABV)',
+    data_type: 'number',
+    presentation: 'standard',
+    is_displayable: true,
+    is_variant_capable: false,
+    is_filterable: true,
+    is_searchable: false,
+    validation_config: { number_format: 'decimal', min: 0, max: 100, precision: 1 },
+    status: 'active',
+    created_at: '2026-08-01T10:00:00Z',
+    updated_at: '2026-08-01T10:00:00Z',
+  },
 ];
 
 const ATTRIBUTE_STORAGE_KEY = 'universal_store_attributes';
+let isAttributeCacheLoaded = false;
 
 function getStoredAttributes(): Attribute[] {
+  if (isAttributeCacheLoaded && inMemoryAttributesStore.length > 0) {
+    return inMemoryAttributesStore;
+  }
+
   if (typeof window !== 'undefined') {
     try {
       const raw = localStorage.getItem(ATTRIBUTE_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge in any default attributes that don't exist in localStorage
+          const existingIds = new Set(parsed.map((a: Attribute) => a.id));
+          const missingDefaults = inMemoryAttributesStore.filter((a) => !existingIds.has(a.id));
+          if (missingDefaults.length > 0) {
+            const merged = [...parsed, ...missingDefaults];
+            inMemoryAttributesStore = merged;
+            localStorage.setItem(ATTRIBUTE_STORAGE_KEY, JSON.stringify(merged));
+            isAttributeCacheLoaded = true;
+            return merged;
+          }
           inMemoryAttributesStore = parsed;
+          isAttributeCacheLoaded = true;
           return inMemoryAttributesStore;
         }
       }
@@ -595,11 +632,21 @@ function getStoredAttributes(): Attribute[] {
       console.warn('Failed to load attributes from localStorage', e);
     }
   }
+  isAttributeCacheLoaded = true;
   return inMemoryAttributesStore;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === ATTRIBUTE_STORAGE_KEY) {
+      isAttributeCacheLoaded = false;
+    }
+  });
 }
 
 function persistAttributes(attributes: Attribute[]) {
   inMemoryAttributesStore = attributes;
+  isAttributeCacheLoaded = true;
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(ATTRIBUTE_STORAGE_KEY, JSON.stringify(attributes));
@@ -620,18 +667,49 @@ export class AttributeService {
     // Filter by search query
     if (params.search?.trim()) {
       const q = params.search.toLowerCase().trim();
-      result = result.filter(
+
+      // 1. Check for exact name, key, or storefront label match (e.g. 'material', 'color', 'size')
+      const exactMatches = result.filter(
         (a) =>
-          a.name.toLowerCase().includes(q) ||
-          a.storefront_label.toLowerCase().includes(q) ||
-          a.key.toLowerCase().includes(q) ||
-          (a.description || '').toLowerCase().includes(q) ||
-          (a.help_text || '').toLowerCase().includes(q)
+          a.name.toLowerCase() === q ||
+          a.key.toLowerCase() === q ||
+          a.storefront_label.toLowerCase() === q
       );
+
+      if (exactMatches.length > 0) {
+        result = exactMatches;
+      } else {
+        // 2. Check for partial name, key, or storefront label match
+        const partialMatches = result.filter(
+          (a) =>
+            a.name.toLowerCase().includes(q) ||
+            a.key.toLowerCase().includes(q) ||
+            a.storefront_label.toLowerCase().includes(q)
+        );
+
+        if (partialMatches.length > 0) {
+          result = partialMatches;
+        } else {
+          // 3. Fallback to values, description, and help text
+          result = result.filter(
+            (a) =>
+              (a.description || '').toLowerCase().includes(q) ||
+              (a.help_text || '').toLowerCase().includes(q) ||
+              (a.values || []).some(
+                (v) =>
+                  v.name.toLowerCase().includes(q) ||
+                  v.display_label.toLowerCase().includes(q) ||
+                  v.key.toLowerCase().includes(q)
+              )
+          );
+        }
+      }
     }
 
     // Filter by capability or lifecycle status
-    if (params.capability && params.capability !== 'all') {
+    if (params.status && params.status !== 'all') {
+      result = result.filter((a) => a.status === params.status);
+    } else if (params.capability && params.capability !== 'all') {
       if (params.capability === 'archived') {
         result = result.filter((a) => a.status === 'archived');
       } else {
@@ -647,7 +725,7 @@ export class AttributeService {
           result = result.filter((a) => a.is_searchable);
         }
       }
-    } else {
+    } else if (!params.status) {
       // By default, exclude archived unless specifically requested
       result = result.filter((a) => a.status === 'active');
     }

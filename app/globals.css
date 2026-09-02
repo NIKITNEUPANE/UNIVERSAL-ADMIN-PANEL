@@ -4,23 +4,30 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%; /* #f8f9fc */
-    --foreground: 222 47% 11%; /* #0f172a */
-    --card: 0 0% 100%; /* #ffffff */
+    --background: 220 20% 98%;
+    /* #f8f9fc */
+    --foreground: 222 47% 11%;
+    /* #0f172a */
+    --card: 0 0% 100%;
+    /* #ffffff */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 246 80% 60%; /* #4f46e5 */
+    --primary: 246 80% 60%;
+    /* #4f46e5 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%; /* #f1f5f9 */
+    --secondary: 220 14% 96%;
+    /* #f1f5f9 */
     --secondary-foreground: 222 47% 11%;
     --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%; /* #64748b */
+    --muted-foreground: 215 16% 47%;
+    /* #64748b */
     --accent: 220 14% 96%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%; /* #e2e8f0 */
+    --border: 220 13% 91%;
+    /* #e2e8f0 */
     --input: 220 13% 91%;
     --ring: 246 80% 60%;
     --radius: 0.75rem;
@@ -31,9 +38,23 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-indigo-100 selection:text-indigo-900;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Remove number input up/down spin buttons (Chrome, Safari, Edge, Opera) */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Remove number input up/down spin buttons (Firefox) */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
   }
 }
 
@@ -56,142 +77,248 @@
   background: rgba(15, 23, 42, 0.25);
 }
 
-/* Glassmorphic card utility */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(16px);
+/* ========================================================================== */
+/* GLASSMORHPISM & LIQUID GLASS DESIGN SYSTEM UTILITIES                       */
+/* ========================================================================== */
+
+/* Ambient Liquid Mesh Canvas (Zero GPU Overhead Radial Mesh) */
+.liquid-ambient-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+  transform: translateZ(0);
+  contain: strict;
+  background-color: #f3f6fa;
+  background-image:
+    radial-gradient(at 8% 12%, rgba(99, 102, 241, 0.16) 0px, transparent 45%),
+    radial-gradient(at 92% 8%, rgba(168, 85, 247, 0.14) 0px, transparent 48%),
+    radial-gradient(at 15% 52%, rgba(14, 165, 233, 0.12) 0px, transparent 45%),
+    radial-gradient(at 85% 65%, rgba(244, 63, 94, 0.11) 0px, transparent 45%),
+    radial-gradient(at 50% 92%, rgba(99, 102, 241, 0.13) 0px, transparent 50%),
+    radial-gradient(at 20% 92%, rgba(20, 184, 166, 0.10) 0px, transparent 42%);
+}
+
+/* 1. Core Liquid Glass Card (Zero-Flicker, Instant 120fps Smooth Scrolling) */
+.liquid-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.82) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #ffffff;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 16px -2px rgba(15, 23, 42, 0.04),
+    0 2px 6px -1px rgba(99, 102, 241, 0.02);
+}
+
+/* 1b. Liquid Glass Sub-Card / Bento Tile */
+.liquid-glass-subcard {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #ffffff;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 2px 8px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* 2. Interactive Liquid Glass Card (with hover reflection) */
+.liquid-glass-interactive {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(255, 255, 255, 0.80) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #ffffff;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 4px 14px -2px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.liquid-glass-interactive:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(255, 255, 255, 0.88) 100%
+  );
+  border-color: rgba(199, 210, 254, 0.95);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 10px 24px -4px rgba(99, 102, 241, 0.08),
+    0 4px 10px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* 3. Liquid Glass Header & Navigation */
+.liquid-glass-header {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 2px 10px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* 4. Liquid Glass Sidebar */
+.liquid-glass-sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    2px 0 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* 5. Liquid Glass Active Capsule */
+.liquid-glass-active {
+  background: rgba(238, 242, 255, 0.92);
+  border: 1px solid rgba(165, 180, 252, 0.8);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 2px 6px 0 rgba(99, 102, 241, 0.08);
+}
+
+/* 6. Liquid Glass Input & Filter Capsule */
+.liquid-glass-input {
+  background: rgba(255, 255, 255, 0.90);
   border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-}
-
-.glass-panel-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-panel-hover:hover {
-  background: #ffffff;
-  border-color: rgba(203, 213, 225, 1);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-}
-
-/* ========================================================================== */
-/* SKEUOMORPHIC & TACTILE DESIGN SYSTEM UTILITIES                             */
-/* ========================================================================== */
-
-/* Skeuomorphic Raised Card */
-.skeu-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
-  border: 1px solid #e2e8f0;
-  border-top-color: #f1f5f9;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.9) inset,
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 6px 16px -4px rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
-}
-
-/* Skeuomorphic Inset Well / Bay */
-.skeu-inset {
-  background: linear-gradient(180deg, #eef2f6 0%, #f8fafc 100%);
-  border: 1px solid #cbd5e1;
-  box-shadow: 
-    inset 0 2px 4px rgba(15, 23, 42, 0.06),
-    inset 0 1px 2px rgba(15, 23, 42, 0.08),
-    0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-/* Skeuomorphic Primary 3D Button */
-.skeu-button-primary {
-  background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
-  border: 1px solid #3730a3;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-    0 2px 4px rgba(67, 56, 202, 0.3),
-    0 4px 8px -2px rgba(15, 23, 42, 0.2);
-  transition: all 0.1s ease-in-out;
-}
-
-.skeu-button-primary:hover {
-  background: linear-gradient(180deg, #5850ec 0%, #473dc8 100%);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-    0 3px 6px rgba(67, 56, 202, 0.4),
-    0 6px 12px -2px rgba(15, 23, 42, 0.25);
-  transform: translateY(-1px);
-}
-
-.skeu-button-primary:active {
-  background: linear-gradient(180deg, #3730a3 0%, #312e81 100%);
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.1);
-  transform: translateY(1px);
-}
-
-/* Skeuomorphic Light 3D Button */
-.skeu-button-secondary {
-  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-  border: 1px solid #cbd5e1;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 1),
-    0 1px 3px rgba(15, 23, 42, 0.08),
-    0 2px 4px -1px rgba(15, 23, 42, 0.05);
-  transition: all 0.1s ease;
-}
-
-.skeu-button-secondary:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
-  border-color: #94a3b8;
-  transform: translateY(-1px);
-}
-
-.skeu-button-secondary:active {
-  background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
-  box-shadow: inset 0 2px 3px rgba(15, 23, 42, 0.12);
-  transform: translateY(1px);
-}
-
-/* Skeuomorphic Tactile Active Pill / Swatch */
-.skeu-pill-active {
-  background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
-  border: 2px solid #4f46e5;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 2px 6px rgba(79, 70, 229, 0.25),
-    0 1px 2px rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
-}
-
-/* Skeuomorphic Tactile Inactive Pill / Swatch */
-.skeu-pill-inactive {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid #e2e8f0;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 1px 2px rgba(15, 23, 42, 0.04);
+  box-shadow:
+    0 1px 2px 0 rgba(15, 23, 42, 0.03) inset;
   transition: all 0.15s ease;
 }
 
-.skeu-pill-inactive:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-  border-color: #cbd5e1;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 1),
-    0 3px 6px rgba(15, 23, 42, 0.08);
+.liquid-glass-input:focus {
+  background: #ffffff;
+  border-color: rgba(99, 102, 241, 0.7);
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.12),
+    0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+/* 7. Liquid Primary Action Button (Specular Shimmer) */
+.liquid-button-primary {
+  background: linear-gradient(135deg,
+      #4f46e5 0%,
+      #4338ca 100%);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.35) inset,
+    0 4px 14px 0 rgba(79, 70, 229, 0.35),
+    0 1px 2px 0 rgba(15, 23, 42, 0.1);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-button-primary:hover {
+  background: linear-gradient(135deg,
+      #6d70f8 0%,
+      #5850ec 50%,
+      #473dc8 100%);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.45) inset,
+    0 6px 18px 0 rgba(79, 70, 229, 0.45),
+    0 2px 4px 0 rgba(15, 23, 42, 0.15);
   transform: translateY(-1px);
 }
 
-/* Skeuomorphic Floating Command Dock Bar */
-.skeu-dock-bar {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 -4px 16px rgba(0, 0, 0, 0.15),
-    0 12px 32px rgba(0, 0, 0, 0.35);
+.liquid-button-primary:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 0 0 rgba(0, 0, 0, 0.2) inset,
+    0 2px 6px 0 rgba(79, 70, 229, 0.3);
 }
 
+/* 8. Liquid Glass Button Secondary / Glass Variant */
+.liquid-button-glass {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(241, 245, 249, 0.85) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+    0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease;
+}
+
+.liquid-button-glass:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(241, 245, 249, 0.9) 100%);
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.liquid-button-glass:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.06);
+}
+
+/* 9. Liquid Glass Badge */
+/* 9. Studio Badge */
+.liquid-badge {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.02);
+}
+
+/* 10. Studio Modal / Popover Panel */
+.liquid-modal-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 20px 25px -5px rgba(15, 23, 42, 0.12),
+    0 8px 10px -6px rgba(15, 23, 42, 0.08);
+}
+
+/* 11. Studio Inset / Sub-well */
+.liquid-glass-inset {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: inset 0 1px 2px 0 rgba(15, 23, 42, 0.02);
+}
+
+/* 12. Liquid Glass Modal & Bento Modular Utilities */
+.liquid-glass-modal {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 25px 60px -15px rgba(15, 23, 42, 0.22),
+    0 0 0 1px rgba(226, 232, 240, 0.6);
+}
+
+.liquid-glass-bento {
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.95) inset,
+    0 10px 25px -5px rgba(30, 41, 59, 0.04),
+    0 2px 6px 0 rgba(30, 41, 59, 0.02);
+}
+
+.liquid-glass-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+    0 1px 3px rgba(15, 23, 42, 0.04);
+}

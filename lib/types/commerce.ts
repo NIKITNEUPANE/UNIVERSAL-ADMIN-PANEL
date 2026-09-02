@@ -242,6 +242,8 @@ export interface CategoryAttributeConfig {
 export interface Category {
   id: string;
   parent_id?: string | null;
+  parent?: Category;
+  parent_name?: string;
   name: string;
   slug: string;
   description?: string;
@@ -377,4 +379,102 @@ export interface AuditLog {
   new_data?: Record<string, any>;
   performed_by: string;
   created_at: string;
+}
+
+// ==============================================================================
+// 6. INVENTORY & WAREHOUSE MANAGEMENT
+// ==============================================================================
+
+export type WarehouseType = 'warehouse' | 'store' | 'transit' | 'dropship';
+
+export interface Warehouse {
+  id: string;
+  name: string;
+  location: string;       // e.g. "Kathmandu, Nepal"
+  type: WarehouseType;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    country?: string;
+  };
+  is_default: boolean;
+  status: 'active' | 'archived';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WarehouseStockEntry {
+  id: string;
+  product_id: string;
+  variant_id: string;       // Links to ProductVariant.id (or product_id for simple products)
+  warehouse_id: string;
+  available: number;         // Qty ready to sell
+  committed: number;         // Qty reserved by pending orders
+  incoming: number;          // Qty expected from purchase orders
+  low_stock_threshold: number;
+  last_updated: string;
+}
+
+export type StockMovementType = 'received' | 'sold' | 'transferred' | 'adjusted' | 'returned';
+
+export interface StockMovement {
+  id: string;
+  product_id: string;
+  variant_id: string;
+  variant_title?: string;
+  sku?: string;
+  warehouse_id: string;
+  to_warehouse_id?: string;  // For transfers
+  type: StockMovementType;
+  quantity: number;           // Positive = stock in, negative = stock out
+  reference?: string;         // Order #, PO #, Adjustment ID, etc.
+  notes?: string;
+  created_by?: string;
+  created_at: string;
+}
+
+export type AdjustmentReason = 'damaged' | 'cycle_count' | 'write_off' | 'correction' | 'theft' | 'expired';
+
+export interface StockAdjustment {
+  id: string;
+  product_id: string;
+  variant_id: string;
+  variant_title?: string;
+  sku?: string;
+  warehouse_id: string;
+  reason: AdjustmentReason;
+  old_qty: number;
+  new_qty: number;
+  notes?: string;
+  adjusted_by: string;
+  created_at: string;
+}
+
+export type PurchaseOrderStatus = 'pending' | 'partial' | 'received' | 'cancelled';
+
+export interface PurchaseOrderItem {
+  id: string;
+  variant_id: string;
+  variant_title?: string;
+  sku: string;
+  ordered_qty: number;
+  received_qty: number;
+  warehouse_id: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  po_number: string;          // e.g. "PO-2026-001"
+  supplier_name: string;
+  supplier_contact?: string;
+  status: PurchaseOrderStatus;
+  items: PurchaseOrderItem[];
+  expected_date: string;
+  received_date?: string;
+  notes?: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
 }

@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Package,
   Layers,
   Edit,
   Archive,
   RotateCcw,
-  Tag,
-  DollarSign,
   Boxes,
   Eye,
-  Sparkles
+  Sparkles,
+  Check,
+  Trash2
 } from 'lucide-react';
 import { Product } from '@/lib/types/commerce';
 import { CurrencyService } from '@/lib/services/currency-service';
@@ -22,11 +23,11 @@ import Link from 'next/link';
 
 interface ProductCardProps {
   product: Product;
-  onArchive: (id: string) => void;
-  onRestore: (id: string) => void;
+  onDelete: (id: string, title: string) => void;
 }
 
-export function ProductCard({ product, onArchive, onRestore }: ProductCardProps) {
+export function ProductCard({ product, onDelete }: ProductCardProps) {
+  const router = useRouter();
   const [, setCurrencyTick] = useState(0);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function ProductCard({ product, onArchive, onRestore }: ProductCardProps)
   const isDraft = product.status === 'draft';
   const isVariable = product.variants && product.variants.length > 0;
 
-  // Calculate price range if variable
+  // Format price
   const priceDisplay = CurrencyService.formatProductPrice(product);
 
   // Calculate total stock
@@ -47,153 +48,186 @@ export function ProductCard({ product, onArchive, onRestore }: ProductCardProps)
     ? product.variants.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0)
     : product.inventory_quantity || 0;
 
-  const thumbnail = product.images && product.images.length > 0 ? product.images[0] : null;
+  // Extract distinct colors for swatch circles
+  const colors = useMemo(() => {
+    const colorMap = new Map<string, { key: string; name: string; hex: string }>();
+
+    // 1. From media items
+    (product.media || []).forEach((m) => {
+      if (m.color_hex && m.color_key && m.color_key !== 'general') {
+        const key = m.color_key.toLowerCase();
+        if (!colorMap.has(key)) {
+          colorMap.set(key, {
+            key,
+            name: m.color_name || key,
+            hex: m.color_hex,
+          });
+        }
+      }
+    });
+
+    // 2. From attributes
+    const colorPav = product.attributes?.find(
+      (a) => a.data_type === 'color' || a.attribute_name?.toLowerCase().includes('color')
+    );
+    if (colorPav && Array.isArray(colorPav.json_value)) {
+      colorPav.json_value.forEach((colKey: string) => {
+        const key = colKey.toLowerCase();
+        if (!colorMap.has(key)) {
+          colorMap.set(key, {
+            key,
+            name: colKey.replace(/_/g, ' '),
+            hex: '#8A9A86',
+          });
+        }
+      });
+    }
+
+    return Array.from(colorMap.values()).slice(0, 4);
+  }, [product]);
+
+  const thumbnail =
+    product.images && product.images.length > 0
+      ? product.images[0]
+      : product.media && product.media.length > 0
+      ? product.media[0].url
+      : null;
+
+  const handleCardClick = () => {
+    router.push(`/products/${product.id}`);
+  };
 
   return (
-    <Card
-      className={`border-slate-200/90 glass-panel-hover shadow-xs flex flex-col justify-between transition-all ${
-        isArchived ? 'opacity-70 bg-slate-50/80 border-dashed border-slate-300' : 'bg-white'
+    <div
+      onClick={handleCardClick}
+      className={`rounded-2xl border transition-all duration-300 flex flex-col justify-between cursor-pointer group select-none p-3 sm:p-3.5 ${
+        isArchived
+          ? 'opacity-70 bg-slate-50/70 backdrop-blur-md border-dashed border-slate-300 hover:opacity-100'
+          : 'bg-white/80 backdrop-blur-xl border-white/90 shadow-xs shadow-indigo-500/[0.02] ring-1 ring-slate-900/5 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-indigo-300/80 hover:-translate-y-0.5'
       }`}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 min-w-0">
-            {/* Thumbnail or Fallback Icon */}
-            {thumbnail ? (
-              <img
-                src={thumbnail}
-                alt={product.title}
-                className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-50"
-              />
-            ) : (
-              <div
-                className={`p-2.5 rounded-xl border shrink-0 ${
-                  isArchived
-                    ? 'bg-slate-200 text-slate-500 border-slate-300'
-                    : 'bg-indigo-50 text-indigo-600 border-indigo-100'
-                }`}
-              >
-                <Package className="w-6 h-6" />
-              </div>
-            )}
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <CardTitle className="text-base font-bold text-slate-900 truncate">
-                  {product.title}
-                </CardTitle>
-
-                {isDraft && (
-                  <Badge variant="secondary" className="text-[10px] bg-amber-50 text-amber-800 border-amber-200">
-                    Draft
-                  </Badge>
-                )}
-                {isArchived && (
-                  <Badge variant="secondary" className="text-[10px] bg-slate-200 text-slate-700">
-                    Archived
-                  </Badge>
-                )}
-              </div>
-
-              {/* Category Path */}
-              <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
-                <span className="font-semibold text-indigo-700">
-                  {product.category?.name || 'Uncategorized'}
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="font-mono text-slate-400">{product.sku || 'No SKU'}</span>
-              </div>
+      <div className="space-y-2.5">
+        {/* 1. Compact Hero Image with Floating Glass Badges (Option D Style) */}
+        <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-slate-100/80 border border-slate-200/60 shadow-2xs">
+          {thumbnail ? (
+            <img
+              src={thumbnail}
+              alt={product.title}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50/30 text-indigo-400">
+              <Package className="w-8 h-8 stroke-[1.5]" />
+              <span className="text-[10px] font-semibold text-slate-400 mt-1">No Image</span>
             </div>
-          </div>
+          )}
 
-          <div className="flex items-center gap-1.5 shrink-0">
-            <Link href={`/products/${product.id}`}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
-              >
-                <Edit className="w-3.5 h-3.5 mr-1" />
-                <span>Edit</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {product.short_description && (
-          <p className="pt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed">
-            {product.short_description}
-          </p>
-        )}
-      </CardHeader>
-
-      <CardContent className="pt-0 space-y-3">
-        {/* Price & Variant Specs */}
-        <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
-          <div className="min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-              Price
+          {/* Floating Category Badge (Top Left) */}
+          <div className="absolute top-2 left-2">
+            <span className="px-2 py-0.5 rounded-lg bg-black/45 backdrop-blur-md text-white text-[9px] font-extrabold tracking-wide border border-white/20 shadow-xs">
+              {product.category?.name || 'Catalog'}
             </span>
-            <span
-              className="text-sm font-bold text-slate-900 font-mono whitespace-nowrap truncate block"
-              title={priceDisplay}
-            >
+          </div>
+
+          {/* Floating Glass Price Pill (Top Right) */}
+          <div className="absolute top-2 right-2">
+            <span className="px-2.5 py-0.5 rounded-lg bg-white/95 backdrop-blur-md text-slate-900 text-[11px] font-black font-mono shadow-sm border border-white/90 tracking-tight">
               {priceDisplay}
             </span>
           </div>
 
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-              Type / SKUs
-            </span>
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
-                isVariable
-                  ? 'bg-violet-50 text-violet-700 border-violet-200'
-                  : 'bg-white text-slate-700 border-slate-200'
-              }`}
-            >
-              {isVariable ? `${product.variants.length} Manual Variants` : 'Single SKU Item'}
-            </span>
-          </div>
-        </div>
-
-        {/* Card Footer: Stock & Actions */}
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-1.5 font-medium">
-            <Boxes className="w-3.5 h-3.5 text-slate-400" />
-            <span>
-              {totalStock > 0 ? (
-                <strong className="text-emerald-700">{totalStock} in stock</strong>
-              ) : (
-                <strong className="text-rose-600">Out of stock</strong>
-              )}
-            </span>
-          </div>
-
-          {isArchived ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRestore(product.id)}
-              className="h-8 px-2 text-xs text-emerald-600 hover:bg-emerald-50"
-            >
-              <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              <span>Restore</span>
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onArchive(product.id)}
-              className="h-8 px-2 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-            >
-              <Archive className="w-3.5 h-3.5 mr-1" />
-              <span>Archive</span>
-            </Button>
+          {/* Draft/Archived Overlay Status */}
+          {isDraft && (
+            <div className="absolute bottom-2 left-2">
+              <span className="px-1.5 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
+                Draft
+              </span>
+            </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+
+        {/* 2. Metadata: Color Swatch Dots & Variant Count Badge */}
+        <div className="flex items-center justify-between gap-1.5 pt-0.5">
+          {/* Color Dots */}
+          <div className="flex items-center gap-1">
+            {colors.length > 0 ? (
+              colors.map((c) => (
+                <span
+                  key={c.key}
+                  title={c.name}
+                  className="w-3 h-3 rounded-full border border-white shadow-2xs ring-1 ring-slate-200 shrink-0"
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))
+            ) : (
+              <span className="w-3 h-3 rounded-full bg-slate-300 border border-white shadow-2xs shrink-0" />
+            )}
+            {colors.length > 0 && (
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">
+                {colors.length} {colors.length === 1 ? 'Color' : 'Colors'}
+              </span>
+            )}
+          </div>
+
+          {/* Variant / SKU Tag */}
+          <span className="px-1.5 py-0.5 rounded-md bg-slate-100 border border-slate-200/80 text-[9px] font-bold text-slate-600 font-mono">
+            {isVariable ? `${product.variants.length} Variants` : 'Single SKU'}
+          </span>
+        </div>
+
+        {/* 3. Product Title & Short Description */}
+        <div>
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 leading-snug">
+            {product.title}
+          </h3>
+          <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5 font-medium">
+            {product.short_description || `Master SKU: ${product.sku || 'No SKU'}`}
+          </p>
+        </div>
+
+        {/* 4. SKU & Stock Status Line */}
+        <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
+          <span className="font-mono text-slate-400 truncate max-w-[100px]">
+            {product.sku || '—'}
+          </span>
+          <span className="flex items-center gap-1 font-bold">
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                totalStock > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+              }`}
+            />
+            <span className={totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}>
+              {totalStock > 0 ? `${totalStock} in stock` : 'Out of stock'}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* 5. Option B Gradient Edit Product Button & Quick Actions */}
+      <div className="pt-2.5 mt-2 border-t border-slate-100/80 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <Link href={`/products/${product.id}#edit`} className="flex-1">
+          <button
+            type="button"
+            className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-[11px] shadow-sm shadow-indigo-500/20 flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+          >
+            <Edit className="w-3 h-3" />
+            <span>Edit Product</span>
+          </button>
+        </Link>
+
+        {/* Delete Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(product.id, product.title);
+          }}
+          className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors shadow-2xs cursor-pointer"
+          title="Delete Product"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
   );
 }

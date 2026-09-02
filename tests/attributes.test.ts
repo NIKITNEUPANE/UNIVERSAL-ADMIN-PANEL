@@ -490,6 +490,18 @@ async function runTestSuite() {
     assert(featAttr?.is_variant_capable === false, 'Multi-Choice: Not variant eligible by default');
     assert((featAttr?.values?.length || 0) >= 5, 'Multi-Choice: Contains multiple feature tag choices');
 
+    // --------------------------------------------------------------------------
+    // Test 14: Exact Attribute Search & Filtering
+    // --------------------------------------------------------------------------
+    console.log('\n--- Suite 14: Exact Attribute Search & Filtering ---');
+    const materialResults = await AttributeService.getAttributes({ search: 'material' });
+    assert(materialResults.length === 1, 'Searching "material" returns exactly 1 attribute (Material)');
+    assert(materialResults[0].key === 'material', 'Returned attribute is Material');
+
+    const colorResults = await AttributeService.getAttributes({ search: 'color' });
+    assert(colorResults.length === 1, 'Searching "color" returns exactly 1 attribute (Color)');
+    assert(colorResults[0].key === 'color', 'Returned attribute is Color');
+
   } catch (error: any) {
     console.error('Fatal test error:', error);
     failed++;

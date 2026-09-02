@@ -16,10 +16,16 @@ import {
   Check,
   CheckCircle2,
   AlertTriangle,
-  XCircle
+  XCircle,
+  Camera,
+  Upload,
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { Product } from '@/lib/types/commerce';
 import { CurrencyService } from '@/lib/services/currency-service';
+import { ProductService } from '@/lib/services/product-service';
+import { MediaService } from '@/lib/services/media-service';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
@@ -27,24 +33,66 @@ import { useToast } from '@/components/ui/toast';
 interface ProductDetailHeaderProps {
   product: Product;
   onDuplicate: () => void;
-  onArchive: () => void;
-  onRestore: () => void;
+  onDelete?: () => void;
+  onProductUpdated?: (updated: Product) => void;
 }
 
 export function ProductDetailHeader({
   product,
   onDuplicate,
-  onArchive,
-  onRestore,
+  onDelete,
+  onProductUpdated,
 }: ProductDetailHeaderProps) {
   const { showToast } = useToast();
   const [, setCurrencyTick] = useState(0);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const photoInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const handleCurrencyChange = () => setCurrencyTick((t) => t + 1);
     window.addEventListener('currency_change', handleCurrencyChange);
     return () => window.removeEventListener('currency_change', handleCurrencyChange);
   }, []);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingPhoto(true);
+      const asset = await MediaService.uploadFile(file, 'apparel');
+      const newMediaItem = {
+        id: `media-${Date.now()}`,
+        url: asset.url,
+        title: `${product.title} Photo`,
+        color_key: 'general',
+        color_name: 'General Media',
+        is_primary: true,
+        source: 'upload' as const,
+        created_at: new Date().toISOString(),
+      };
+
+      const currentMedia = product.media || [];
+      const updatedMedia = [
+        newMediaItem,
+        ...currentMedia.map((m) => ({ ...m, is_primary: false })),
+      ];
+      const currentImages = product.images || [];
+      const updatedImages = [asset.url, ...currentImages.filter((u) => u !== asset.url)];
+
+      const updated = await ProductService.updateProduct(product.id, {
+        images: updatedImages,
+        media: updatedMedia,
+      });
+
+      showToast('Product photo updated successfully!', 'success');
+      if (onProductUpdated) onProductUpdated(updated);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update photo', 'error');
+    } finally {
+      setIsUploadingPhoto(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   const isArchived = product.status === 'archived';
   const isDraft = product.status === 'draft';
@@ -79,6 +127,15 @@ export function ProductDetailHeader({
 
   return (
     <div className="space-y-4">
+      {/* Hidden Photo Input */}
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handlePhotoUpload}
+      />
+
       {/* Top Navigation & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -94,17 +151,35 @@ export function ProductDetailHeader({
           </Link>
 
           <div className="flex items-center gap-3">
-            {thumbnail ? (
-              <img
-                src={thumbnail}
-                alt={product.title}
-                className="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-2xs shrink-0 bg-slate-50"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shrink-0">
-                <Package className="w-6 h-6" />
+            {/* Interactive Thumbnail with Change Photo Overlay */}
+            <div
+              onClick={() => photoInputRef.current?.click()}
+              className="relative w-12 h-12 rounded-2xl overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-slate-50 cursor-pointer group"
+              title="Click to Change Product Photo"
+            >
+              {thumbnail ? (
+                <img
+                  src={thumbnail}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center">
+                  <Package className="w-6 h-6" />
+                </div>
+              )}
+
+              {/* Hover / Uploading Camera Overlay */}
+              <div className={`absolute inset-0 bg-slate-900/60 backdrop-blur-2xs flex items-center justify-center text-white transition-opacity ${
+                isUploadingPhoto ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}>
+                {isUploadingPhoto ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                ) : (
+                  <Camera className="w-4 h-4 text-white" />
+                )}
               </div>
-            )}
+            </div>
 
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -181,25 +256,15 @@ export function ProductDetailHeader({
             <span>Duplicate</span>
           </Button>
 
-          {isArchived ? (
+          {onDelete && (
             <Button
               variant="outline"
               size="sm"
-              onClick={onRestore}
-              className="text-xs font-semibold h-9 text-emerald-600 border-emerald-200 hover:bg-emerald-50 rounded-xl"
+              onClick={onDelete}
+              className="text-xs font-semibold h-9 text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-300 rounded-xl cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-              <span>Restore</span>
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onArchive}
-              className="text-xs font-semibold h-9 text-rose-600 border-rose-200 hover:bg-rose-50 rounded-xl"
-            >
-              <Archive className="w-3.5 h-3.5 mr-1.5" />
-              <span>Archive</span>
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              <span>Delete Product</span>
             </Button>
           )}
         </div>

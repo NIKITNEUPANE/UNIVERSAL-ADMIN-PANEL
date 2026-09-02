@@ -34,6 +34,7 @@ interface ProductAttributeFieldProps {
   attribute: Attribute;
   value?: ProductAttributeValue;
   isRequiredForCategory?: boolean;
+  isRequired?: boolean;
   onChange: (value: ProductAttributeValue) => void;
   onRemove?: () => void;
 }
@@ -42,9 +43,11 @@ export function ProductAttributeField({
   attribute,
   value,
   isRequiredForCategory = false,
+  isRequired = false,
   onChange,
   onRemove,
 }: ProductAttributeFieldProps) {
+  const isReq = isRequired || isRequiredForCategory;
   // Custom choice/color state
   const [customColorName, setCustomColorName] = useState('');
   const [customColorHex, setCustomColorHex] = useState('#183B70');

@@ -20,6 +20,7 @@ export interface CreateCategoryDTO {
   sort_order?: number;
   status?: 'active' | 'archived';
   attribute_ids?: Array<{ attribute_id: string; is_required?: boolean }>;
+  subcategories?: string[];
 }
 
 export interface UpdateCategoryDTO {
@@ -30,6 +31,8 @@ export interface UpdateCategoryDTO {
   image_url?: string;
   sort_order?: number;
   status?: 'active' | 'archived';
+  attribute_ids?: Array<{ attribute_id: string; is_required?: boolean }>;
+  subcategories?: string[];
 }
 
 export interface CategoryFilterParams {
@@ -67,13 +70,14 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Apparel & Fashion',
     slug: 'apparel-fashion',
     description: 'Garments, shoes, lifestyle wearables, and fashion accessories',
-    image_url: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/apparel-fashion.jpg',
     sort_order: 1,
     status: 'active',
     attributes: [
-      { id: 'ca-01-01', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: false, sort_order: 1 }, // Color
-      { id: 'ca-01-02', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000003', is_required: false, sort_order: 2 }, // Material
-      { id: 'ca-01-03', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 3 }, // Brand
+      { id: 'ca-01-01', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: true, sort_order: 1 }, // Color -> REQUIRED
+      { id: 'ca-01-02', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000002', is_required: true, sort_order: 2 }, // Size -> REQUIRED
+      { id: 'ca-01-03', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000003', is_required: false, sort_order: 3 }, // Material
+      { id: 'ca-01-04', category_id: 'cat-01', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 4 }, // Brand
     ],
   },
   // 1.1 Kids Clothing (Subcategory of Apparel)
@@ -83,12 +87,12 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Kids Clothing',
     slug: 'kids-clothing',
     description: 'Apparel for infants, toddlers, and young children with age & letter sizing',
-    image_url: 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/kids-clothing.jpg',
     sort_order: 1,
     status: 'active',
     attributes: [
-      { id: 'ca-k-01', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: false, sort_order: 1 }, // Color
-      { id: 'ca-k-02', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000002', is_required: true, sort_order: 2 },  // Size -> REQUIRED in Kids Clothing!
+      { id: 'ca-k-01', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: true, sort_order: 1 }, // Color -> REQUIRED
+      { id: 'ca-k-02', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000002', is_required: true, sort_order: 2 },  // Size -> REQUIRED
       { id: 'ca-k-03', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000003', is_required: false, sort_order: 3 }, // Material
       { id: 'ca-k-04', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000004', is_required: false, sort_order: 4 }, // Age Group
       { id: 'ca-k-05', category_id: 'cat-01-01', attribute_id: 'a0000000-0000-0000-0000-000000000023', is_required: false, sort_order: 5 }, // Product Features
@@ -101,7 +105,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Accessories & Belts',
     slug: 'accessories-belts',
     description: 'Hats, belts, scarves, and jewelry',
-    image_url: 'https://images.unsplash.com/photo-1523779164963-cfa05a11fc34?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/accessories-belts.jpg',
     sort_order: 2,
     status: 'active',
     attributes: [
@@ -119,7 +123,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Beverages & Gourmet',
     slug: 'beverages-gourmet',
     description: 'Artisanal roasts, loose leaf tea, juices, and organic pantry items',
-    image_url: 'https://images.unsplash.com/photo-1509785307050-d4066910ec1e?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/beverages-gourmet.jpg',
     sort_order: 2,
     status: 'active',
     attributes: [
@@ -134,7 +138,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Specialty Coffee',
     slug: 'specialty-coffee',
     description: 'Single-origin beans, dark and light roasts, and espresso blends',
-    image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/specialty-coffee.jpg',
     sort_order: 1,
     status: 'active',
     attributes: [
@@ -151,7 +155,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Herbal Teas & Infusions',
     slug: 'herbal-teas',
     description: 'Loose leaf and bagged botanicals, organic chamomile, and green teas',
-    image_url: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=60',
+    image_url: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&auto=format&fit=crop&q=80',
     sort_order: 2,
     status: 'active',
     attributes: [
@@ -168,7 +172,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Electronics & Tech',
     slug: 'electronics-tech',
     description: 'Computing hardware, audio, displays, and smart gadgets',
-    image_url: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/electronics-tech.jpg',
     sort_order: 3,
     status: 'active',
     attributes: [
@@ -183,7 +187,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Laptops & Computers',
     slug: 'laptops-computers',
     description: 'Ultrabooks, workstations, and desktop towers',
-    image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=60',
+    image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80',
     sort_order: 1,
     status: 'active',
     attributes: [
@@ -201,7 +205,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Audio & Headphones',
     slug: 'audio-headphones',
     description: 'Wireless earbuds, noise-canceling headphones, and Hi-Fi speakers',
-    image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=60',
+    image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
     sort_order: 2,
     status: 'active',
     attributes: [
@@ -219,7 +223,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Cosmetics & Beauty',
     slug: 'cosmetics-beauty',
     description: 'Organic skincare, fragrances, botanical serums, and body care',
-    image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&auto=format&fit=crop&q=60',
+    image_url: '/images/categories/cosmetics-beauty.jpg',
     sort_order: 4,
     status: 'active',
     attributes: [
@@ -234,7 +238,7 @@ let inMemoryCategoriesStore: Category[] = [
     name: 'Skincare & Serums',
     slug: 'skincare-serums',
     description: 'Hydrating serums, face oils, and sunscreens',
-    image_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=60',
+    image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80',
     sort_order: 1,
     status: 'active',
     attributes: [
@@ -243,18 +247,253 @@ let inMemoryCategoriesStore: Category[] = [
       { id: 'ca-s-03', category_id: 'cat-04-01', attribute_id: 'a0000000-0000-0000-0000-000000000023', is_required: false, sort_order: 3 }, // Product Features
     ],
   },
+
+  // 5. ALCOHOLS (Parent)
+  {
+    id: 'cat-05',
+    parent_id: null,
+    name: 'Alcohols',
+    slug: 'alcohols',
+    description: 'Alcoholic beverages, spirits, craft beers, and fine wines',
+    image_url: '/images/categories/alcohols.jpg',
+    sort_order: 5,
+    status: 'active',
+    attributes: [
+      { id: 'ca-05-01', category_id: 'cat-05', attribute_id: 'a0000000-0000-0000-0000-000000000006', is_required: true, sort_order: 1 },  // Volume -> REQUIRED
+      { id: 'ca-05-02', category_id: 'cat-05', attribute_id: 'a0000000-0000-0000-0000-000000000024', is_required: false, sort_order: 2 }, // ABV
+      { id: 'ca-05-03', category_id: 'cat-05', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 3 }, // Brand
+    ],
+  },
+  // 5.1 Whiskey (Subcategory)
+  {
+    id: 'cat-05-01',
+    parent_id: 'cat-05',
+    name: 'Whiskey',
+    slug: 'whiskey',
+    description: 'Single malt, blended scotch, bourbon, and rye whiskies',
+    image_url: '/images/categories/whiskey.jpg',
+    sort_order: 1,
+    status: 'active',
+    attributes: [
+      { id: 'ca-w-01', category_id: 'cat-05-01', attribute_id: 'a0000000-0000-0000-0000-000000000006', is_required: true, sort_order: 1 },  // Volume -> REQUIRED
+      { id: 'ca-w-02', category_id: 'cat-05-01', attribute_id: 'a0000000-0000-0000-0000-000000000024', is_required: true, sort_order: 2 },  // ABV -> REQUIRED
+      { id: 'ca-w-03', category_id: 'cat-05-01', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 3 }, // Brand
+    ],
+  },
+  // 5.2 Beer (Subcategory)
+  {
+    id: 'cat-05-02',
+    parent_id: 'cat-05',
+    name: 'Beer',
+    slug: 'beer',
+    description: 'Lagers, ales, IPAs, craft beers, and stouts',
+    image_url: '/images/categories/beer.jpg',
+    sort_order: 2,
+    status: 'active',
+    attributes: [
+      { id: 'ca-b-01', category_id: 'cat-05-02', attribute_id: 'a0000000-0000-0000-0000-000000000006', is_required: true, sort_order: 1 },  // Volume -> REQUIRED
+      { id: 'ca-b-02', category_id: 'cat-05-02', attribute_id: 'a0000000-0000-0000-0000-000000000024', is_required: false, sort_order: 2 }, // ABV
+      { id: 'ca-b-03', category_id: 'cat-05-02', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 3 }, // Brand
+    ],
+  },
+  // 5.3 Vodka (Subcategory)
+  {
+    id: 'cat-05-03',
+    parent_id: 'cat-05',
+    name: 'Vodka',
+    slug: 'vodka',
+    description: 'Grain, potato, and flavored premium vodkas',
+    image_url: '/images/categories/vodka.jpg',
+    sort_order: 3,
+    status: 'active',
+    attributes: [
+      { id: 'ca-v-01', category_id: 'cat-05-03', attribute_id: 'a0000000-0000-0000-0000-000000000006', is_required: true, sort_order: 1 },  // Volume -> REQUIRED
+      { id: 'ca-v-02', category_id: 'cat-05-03', attribute_id: 'a0000000-0000-0000-0000-000000000024', is_required: true, sort_order: 2 },  // ABV -> REQUIRED
+      { id: 'ca-v-03', category_id: 'cat-05-03', attribute_id: 'a0000000-0000-0000-0000-000000000008', is_required: false, sort_order: 3 }, // Flavor
+      { id: 'ca-v-04', category_id: 'cat-05-03', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 4 }, // Brand
+    ],
+  },
+  // 5.4 Wine (Subcategory)
+  {
+    id: 'cat-05-04',
+    parent_id: 'cat-05',
+    name: 'Wine',
+    slug: 'wine',
+    description: 'Red, white, rosé, and sparkling wines',
+    image_url: '/images/categories/wine.jpg',
+    sort_order: 4,
+    status: 'active',
+    attributes: [
+      { id: 'ca-wn-01', category_id: 'cat-05-04', attribute_id: 'a0000000-0000-0000-0000-000000000006', is_required: true, sort_order: 1 },  // Volume -> REQUIRED
+      { id: 'ca-wn-02', category_id: 'cat-05-04', attribute_id: 'a0000000-0000-0000-0000-000000000024', is_required: false, sort_order: 2 }, // ABV
+      { id: 'ca-wn-03', category_id: 'cat-05-04', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 3 }, // Brand
+    ],
+  },
+
+  // 6. SHOES & FOOTWEAR (Parent)
+  {
+    id: 'cat-06',
+    parent_id: null,
+    name: 'Shoes & Footwear',
+    slug: 'shoes-footwear',
+    description: 'Sneakers, leather oxfords, boots, athletic trainers, and formal footwear',
+    image_url: '/images/categories/shoes-footwear.jpg',
+    sort_order: 6,
+    status: 'active',
+    attributes: [
+      { id: 'ca-06-01', category_id: 'cat-06', attribute_id: 'a0000000-0000-0000-0000-000000000002', is_required: true, sort_order: 1 }, // Size -> REQUIRED
+      { id: 'ca-06-02', category_id: 'cat-06', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: true, sort_order: 2 }, // Color -> REQUIRED
+      { id: 'ca-06-03', category_id: 'cat-06', attribute_id: 'a0000000-0000-0000-0000-000000000003', is_required: false, sort_order: 3 }, // Material
+      { id: 'ca-06-04', category_id: 'cat-06', attribute_id: 'a0000000-0000-0000-0000-000000000010', is_required: false, sort_order: 4 }, // Brand
+    ],
+  },
+  // 6.1 Sneakers & Athletic (Subcategory)
+  {
+    id: 'cat-06-01',
+    parent_id: 'cat-06',
+    name: 'Sneakers & Athletic',
+    slug: 'sneakers-athletic',
+    description: 'Running shoes, casual everyday trainers, and basketball sneakers',
+    image_url: '/images/categories/shoes-footwear.jpg',
+    sort_order: 1,
+    status: 'active',
+    attributes: [
+      { id: 'ca-sn-01', category_id: 'cat-06-01', attribute_id: 'a0000000-0000-0000-0000-000000000002', is_required: true, sort_order: 1 }, // Size -> REQUIRED
+      { id: 'ca-sn-02', category_id: 'cat-06-01', attribute_id: 'a0000000-0000-0000-0000-000000000001', is_required: true, sort_order: 2 }, // Color -> REQUIRED
+    ],
+  },
 ];
 
 const CATEGORY_STORAGE_KEY = 'universal_store_categories';
+let isCategoryCacheLoaded = false;
 
 function getStoredCategories(): Category[] {
+  if (isCategoryCacheLoaded && inMemoryCategoriesStore.length > 0) {
+    return inMemoryCategoriesStore;
+  }
+
   if (typeof window !== 'undefined') {
     try {
       const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge in any default categories that don't exist in localStorage
+          const existingIds = new Set(parsed.map((c: Category) => c.id));
+          const existingSlugs = new Set(parsed.map((c: Category) => c.slug));
+          const missingDefaults = inMemoryCategoriesStore.filter(
+            (c) => !existingIds.has(c.id) && !existingSlugs.has(c.slug)
+          );
+          let workingCategories = missingDefaults.length > 0 ? [...parsed, ...missingDefaults] : parsed;
+
+          // Automatically upgrade categories to best-possible unmistakable photography
+          let patched = missingDefaults.length > 0;
+          const updated = workingCategories.map((cat: Category) => {
+            const slug = (cat.slug || '').toLowerCase();
+            const name = (cat.name || '').toLowerCase();
+
+            // 1. Alcohols must NEVER be a pink flower
+            if (
+              slug === 'alcohols' || name === 'alcohols' || cat.id === 'cat-05'
+            ) {
+              if (cat.image_url !== '/images/categories/alcohols.jpg') {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/alcohols.jpg' };
+              }
+            }
+
+            // 2. Shoes & Footwear must NEVER be a baby sticker or broken link
+            if (
+              slug.includes('shoe') || name.includes('shoe') || name.includes('footwear') || cat.id === 'cat-06'
+            ) {
+              if (!cat.image_url || cat.image_url.includes('baby') || cat.image_url.startsWith('blob:') || !cat.image_url.includes('shoes-footwear.jpg')) {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/shoes-footwear.jpg' };
+              }
+            }
+
+            // 3. Cosmetics & Beauty (crystal clear skincare & cosmetics studio shot)
+            if (
+              slug === 'cosmetics-beauty' || (cat.id === 'cat-04' && !cat.parent_id)
+            ) {
+              if (cat.image_url !== '/images/categories/cosmetics-beauty.jpg') {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/cosmetics-beauty.jpg' };
+              }
+            }
+
+            // 4. Apparel & Fashion (curated luxury coat & knitwear collection)
+            if (
+              slug === 'apparel-fashion' || (cat.id === 'cat-01' && !cat.parent_id)
+            ) {
+              if (cat.image_url !== '/images/categories/apparel-fashion.jpg') {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/apparel-fashion.jpg' };
+              }
+            }
+
+            // 5. Beverages & Gourmet (latte art, tea pot, espresso beans, juice)
+            if (
+              slug === 'beverages-gourmet' || (cat.id === 'cat-02' && !cat.parent_id)
+            ) {
+              if (cat.image_url !== '/images/categories/beverages-gourmet.jpg') {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/beverages-gourmet.jpg' };
+              }
+            }
+
+            // 6. Electronics & Tech (aluminium laptop, headphones, phone, watch)
+            if (
+              slug === 'electronics-tech' || (cat.id === 'cat-03' && !cat.parent_id)
+            ) {
+              if (cat.image_url !== '/images/categories/electronics-tech.jpg') {
+                patched = true;
+                return { ...cat, image_url: '/images/categories/electronics-tech.jpg' };
+              }
+            }
+
+            // Subcategories
+            if (slug === 'kids-clothing' && cat.image_url !== '/images/categories/kids-clothing.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/kids-clothing.jpg' };
+            }
+            if ((slug === 'accessories-belts' || slug === 'accessories') && cat.image_url !== '/images/categories/accessories-belts.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/accessories-belts.jpg' };
+            }
+            if (slug === 'specialty-coffee' && cat.image_url !== '/images/categories/specialty-coffee.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/specialty-coffee.jpg' };
+            }
+            if (slug === 'whiskey' && cat.image_url !== '/images/categories/whiskey.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/whiskey.jpg' };
+            }
+            if (slug === 'beer' && cat.image_url !== '/images/categories/beer.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/beer.jpg' };
+            }
+            if (slug === 'vodka' && cat.image_url !== '/images/categories/vodka.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/vodka.jpg' };
+            }
+            if (slug === 'wine' && cat.image_url !== '/images/categories/wine.jpg') {
+              patched = true;
+              return { ...cat, image_url: '/images/categories/wine.jpg' };
+            }
+
+            return cat;
+          });
+
+          if (patched) {
+            inMemoryCategoriesStore = updated;
+            localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(updated));
+            isCategoryCacheLoaded = true;
+            return updated;
+          }
+
           inMemoryCategoriesStore = parsed;
+          isCategoryCacheLoaded = true;
           return inMemoryCategoriesStore;
         }
       }
@@ -262,11 +501,21 @@ function getStoredCategories(): Category[] {
       console.warn('Failed to load categories from localStorage', e);
     }
   }
+  isCategoryCacheLoaded = true;
   return inMemoryCategoriesStore;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === CATEGORY_STORAGE_KEY) {
+      isCategoryCacheLoaded = false;
+    }
+  });
 }
 
 function persistCategories(categories: Category[]) {
   inMemoryCategoriesStore = categories;
+  isCategoryCacheLoaded = true;
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
@@ -281,13 +530,19 @@ export class CategoryService {
   /**
    * Helper: Hydrate attributes in category configs with full Attribute objects
    */
-  private static async hydrateCategoryAttributes(category: Category): Promise<Category> {
+  private static async hydrateCategoryAttributes(
+    category: Category,
+    preloadedAttrMap?: Map<string, Attribute>
+  ): Promise<Category> {
     if (!category.attributes || category.attributes.length === 0) {
       return { ...category, attributes: [] };
     }
 
-    const allAttrs = await AttributeService.getAttributes({ capability: 'all' });
-    const attrMap = new Map<string, Attribute>(allAttrs.map((a) => [a.id, a]));
+    const attrMap =
+      preloadedAttrMap ||
+      new Map<string, Attribute>(
+        (await AttributeService.getAttributes({ capability: 'all' })).map((a) => [a.id, a])
+      );
 
     const hydratedConfigs: CategoryAttributeConfig[] = category.attributes
       .map((config) => {
@@ -342,18 +597,65 @@ export class CategoryService {
       );
     }
 
-    // Sort
-    if (params.sortBy === 'sort_order') {
-      result.sort((a, b) => a.sort_order - b.sort_order);
+    // Sort: Default to numeric sort_order ascending (0, 1, 2...), then name
+    if (params.sortBy === 'name') {
+      result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (params.sortBy === 'created_desc') {
       result.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
     } else {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name));
     }
 
-    // Hydrate attributes
-    const hydratedList = await Promise.all(result.map((c) => this.hydrateCategoryAttributes(c)));
+    // High performance batch attribute hydration (1 single fetch instead of N queries)
+    const allAttrs = await AttributeService.getAttributes({ capability: 'all' });
+    const attrMap = new Map<string, Attribute>(allAttrs.map((a) => [a.id, a]));
+
+    const hydratedList = result.map((c) => {
+      if (!c.attributes || c.attributes.length === 0) {
+        return { ...c, attributes: [] };
+      }
+      return {
+        ...c,
+        attributes: c.attributes
+          .map((config) => ({
+            ...config,
+            attribute: attrMap.get(config.attribute_id),
+          }))
+          .filter((cfg) => !!cfg.attribute),
+      };
+    });
+
     return hydratedList;
+  }
+
+  /**
+   * Synchronous cached category access for immediate 0ms initial render
+   */
+  static getCachedCategoriesSync(): Category[] {
+    return getStoredCategories();
+  }
+
+  /**
+   * Synchronous cached category tree access for immediate 0ms initial render
+   */
+  static getCachedTreeSync(status: 'all' | 'active' | 'archived' = 'active'): CategoryTreeItem[] {
+    const raw = getStoredCategories();
+    const all = status === 'all' ? raw : raw.filter((c) => c.status === status);
+    const categoryMap = new Map<string, Category>(all.map((c) => [c.id, c]));
+
+    const buildTree = (parentId: string | null = null, depth = 0): CategoryTreeItem[] => {
+      return all
+        .filter((c) => (c.parent_id || null) === parentId)
+        .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+        .map((cat) => ({
+          ...cat,
+          depth,
+          parent_name: cat.parent_id ? categoryMap.get(cat.parent_id)?.name : undefined,
+          children: buildTree(cat.id, depth + 1),
+        }));
+    };
+
+    return buildTree(null, 0);
   }
 
   /**
@@ -460,13 +762,54 @@ export class CategoryService {
       attributes: [],
     };
 
-    // Set category_id for initial attributes
-    newCategory.attributes = initialAttributes.map((a) => ({
-      ...a,
-      category_id: newCategory.id,
-    }));
+    // Set category_id for initial attributes or inherit from parent if not specified
+    if (initialAttributes.length > 0) {
+      newCategory.attributes = initialAttributes.map((a) => ({
+        ...a,
+        category_id: newCategory.id,
+      }));
+    } else if (dto.parent_id) {
+      const parentCat = categories.find((c) => c.id === dto.parent_id);
+      if (parentCat && parentCat.attributes && parentCat.attributes.length > 0) {
+        newCategory.attributes = parentCat.attributes.map((a, aIdx) => ({
+          id: `ca-${Date.now()}-${aIdx}`,
+          category_id: newCategory.id,
+          attribute_id: a.attribute_id,
+          is_required: a.is_required,
+          sort_order: a.sort_order || aIdx + 1,
+        }));
+      }
+    }
 
     const nextCategories = [newCategory, ...categories];
+
+    // Automatically create subcategories if provided, inheriting parent category's attributes
+    if (dto.subcategories && dto.subcategories.length > 0) {
+      dto.subcategories.forEach((subName, subIdx) => {
+        const cleanSubName = subName.trim();
+        if (cleanSubName) {
+          const subSlug = generateCategorySlug(`${newCategory.slug}-${cleanSubName}`);
+          const subId = `cat-${Date.now()}-${subIdx}-${Math.random().toString(36).substring(2, 6)}`;
+          const subCategory: Category = {
+            id: subId,
+            parent_id: newCategory.id,
+            name: cleanSubName,
+            slug: subSlug,
+            sort_order: subIdx + 1,
+            status: 'active',
+            attributes: (newCategory.attributes || []).map((a, aIdx) => ({
+              id: `ca-${Date.now()}-${subIdx}-${aIdx}`,
+              category_id: subId,
+              attribute_id: a.attribute_id,
+              is_required: a.is_required,
+              sort_order: a.sort_order || aIdx + 1,
+            })),
+          };
+          nextCategories.push(subCategory);
+        }
+      });
+    }
+
     persistCategories(nextCategories);
     return this.hydrateCategoryAttributes(newCategory);
   }
@@ -517,6 +860,51 @@ export class CategoryService {
     if (dto.image_url !== undefined) category.image_url = dto.image_url.trim() || undefined;
     if (dto.sort_order !== undefined) category.sort_order = dto.sort_order;
     if (dto.status !== undefined) category.status = dto.status;
+
+    // Update attributes if provided
+    if (dto.attribute_ids !== undefined) {
+      category.attributes = dto.attribute_ids.map((item, idx) => ({
+        id: `ca-${Date.now()}-${idx}`,
+        category_id: category.id,
+        attribute_id: item.attribute_id,
+        is_required: item.is_required ?? false,
+        sort_order: idx + 1,
+      }));
+    }
+
+    // Add new subcategories if provided
+    if (dto.subcategories && dto.subcategories.length > 0) {
+      const existingChildNames = new Set(
+        categories
+          .filter((c) => c.parent_id === id)
+          .map((c) => c.name.toLowerCase().trim())
+      );
+
+      dto.subcategories.forEach((subName, subIdx) => {
+        const cleanSubName = subName.trim();
+        if (cleanSubName && !existingChildNames.has(cleanSubName.toLowerCase())) {
+          const subSlug = generateCategorySlug(`${category.slug}-${cleanSubName}`);
+          const subId = `cat-${Date.now()}-${subIdx}-${Math.random().toString(36).substring(2, 6)}`;
+          const subCategory: Category = {
+            id: subId,
+            parent_id: category.id,
+            name: cleanSubName,
+            slug: subSlug,
+            sort_order: categories.filter((c) => c.parent_id === id).length + subIdx + 1,
+            status: 'active',
+            attributes: (category.attributes || []).map((a, aIdx) => ({
+              id: `ca-${Date.now()}-${subIdx}-${aIdx}`,
+              category_id: subId,
+              attribute_id: a.attribute_id,
+              is_required: a.is_required,
+              sort_order: a.sort_order || aIdx + 1,
+            })),
+          };
+          categories.push(subCategory);
+          existingChildNames.add(cleanSubName.toLowerCase());
+        }
+      });
+    }
 
     persistCategories([...categories]);
     return this.hydrateCategoryAttributes(category);

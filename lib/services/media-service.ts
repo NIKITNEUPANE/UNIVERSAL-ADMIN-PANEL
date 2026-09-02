@@ -222,28 +222,112 @@ export class MediaService {
 
       const reader = new FileReader();
       reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-        
-        // Clean name
-        const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
-        const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+        const rawDataUrl = reader.result as string;
 
-        const newAsset: StorageAsset = {
-          id: assetId,
-          name: capitalized,
-          url: dataUrl,
-          category: category,
-          tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
-          file_size: file.size,
-          mime_type: file.type,
-          created_at: new Date().toISOString(),
+        // If not running in browser with Image/document available, resolve immediately
+        if (typeof window === 'undefined' || typeof Image === 'undefined') {
+          const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+          const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+          const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+          const newAsset: StorageAsset = {
+            id: assetId,
+            name: capitalized,
+            url: rawDataUrl,
+            category: category,
+            tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
+            file_size: file.size,
+            mime_type: file.type,
+            created_at: new Date().toISOString(),
+          };
+          resolve(newAsset);
+          return;
+        }
+
+        // Compress and optimize image using canvas (max 1200px dimension, WebP/JPEG 0.85) to ensure safety in localStorage
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const maxDim = 1200;
+            let { width, height } = img;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+              const optimizedDataUrl = canvas.toDataURL(mime, 0.85);
+
+              const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+              const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+              const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+              const newAsset: StorageAsset = {
+                id: assetId,
+                name: capitalized,
+                url: optimizedDataUrl,
+                category: category,
+                tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
+                file_size: Math.round((optimizedDataUrl.length * 3) / 4),
+                mime_type: mime,
+                width,
+                height,
+                created_at: new Date().toISOString(),
+              };
+
+              const current = getStoredAssets();
+              const updated = [newAsset, ...current.slice(0, 25)];
+              persistAssets(updated);
+              resolve(newAsset);
+            } else {
+              throw new Error('Canvas 2D context unavailable');
+            }
+          } catch (e) {
+            const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+            const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+            const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+            const newAsset: StorageAsset = {
+              id: assetId,
+              name: capitalized,
+              url: rawDataUrl,
+              category: category,
+              tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
+              file_size: file.size,
+              mime_type: file.type,
+              created_at: new Date().toISOString(),
+            };
+            resolve(newAsset);
+          }
         };
 
-        const current = getStoredAssets();
-        const updated = [newAsset, ...current];
-        persistAssets(updated);
-        resolve(newAsset);
+        img.onerror = () => {
+          const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+          const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+          const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+          const newAsset: StorageAsset = {
+            id: assetId,
+            name: capitalized,
+            url: rawDataUrl,
+            category: category,
+            tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
+            file_size: file.size,
+            mime_type: file.type,
+            created_at: new Date().toISOString(),
+          };
+          resolve(newAsset);
+        };
+
+        img.src = rawDataUrl;
       };
 
       reader.onerror = () => {

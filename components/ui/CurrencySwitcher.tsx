@@ -4,16 +4,26 @@ import React, { useState, useEffect } from 'react';
 import { CurrencyService, SUPPORTED_CURRENCIES, CurrencyConfig } from '@/lib/services/currency-service';
 import { Coins, ChevronDown, Check } from 'lucide-react';
 
-export function CurrencySwitcher({ className = '' }: { className?: string }) {
+export function CurrencySwitcher({
+  className = '',
+  onCurrencyChange,
+}: {
+  className?: string;
+  onCurrencyChange?: (currency: CurrencyConfig) => void;
+}) {
   const [activeCurrency, setActiveCurrency] = useState<CurrencyConfig>(CurrencyService.getActiveCurrency());
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     CurrencyService.initClient();
-    setActiveCurrency(CurrencyService.getActiveCurrency());
+    const curr = CurrencyService.getActiveCurrency();
+    setActiveCurrency(curr);
+    onCurrencyChange?.(curr);
 
     const handleCurrencyChange = () => {
-      setActiveCurrency(CurrencyService.getActiveCurrency());
+      const updated = CurrencyService.getActiveCurrency();
+      setActiveCurrency(updated);
+      onCurrencyChange?.(updated);
     };
 
     window.addEventListener('currency_change', handleCurrencyChange);
@@ -23,6 +33,7 @@ export function CurrencySwitcher({ className = '' }: { className?: string }) {
   const handleSelect = (code: string) => {
     const updated = CurrencyService.setActiveCurrency(code);
     setActiveCurrency(updated);
+    onCurrencyChange?.(updated);
     setIsOpen(false);
   };
 
@@ -31,20 +42,20 @@ export function CurrencySwitcher({ className = '' }: { className?: string }) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 shadow-2xs transition-all"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl liquid-glass-input hover:bg-white/90 text-xs font-bold text-slate-800 transition-all cursor-pointer"
         title="Change Store Currency"
       >
-        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" />
         <span className="font-mono">{activeCurrency.code}</span>
-        <span className="text-slate-400 font-normal">({activeCurrency.symbol.trim()})</span>
+        <span className="text-slate-400 font-medium">({activeCurrency.symbol.trim()})</span>
         <ChevronDown className="w-3 h-3 text-slate-400 ml-0.5" />
       </button>
 
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-1.5 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-            <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="absolute right-0 mt-2 w-52 rounded-2xl liquid-modal-panel py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-3.5 py-1.5 border-b border-slate-200/60 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Select Store Currency
             </div>
             <div className="max-h-60 overflow-y-auto p-1 space-y-0.5">

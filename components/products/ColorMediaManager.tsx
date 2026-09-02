@@ -43,11 +43,11 @@ interface ColorMediaManagerProps {
 }
 
 export function ColorMediaManager({
-  attributes,
-  productAttributeValues,
-  variants,
-  mediaItems,
-  tags,
+  attributes = [],
+  productAttributeValues = [],
+  variants = [],
+  mediaItems = [],
+  tags = [],
   onMediaChange,
   onTagsChange,
 }: ColorMediaManagerProps) {

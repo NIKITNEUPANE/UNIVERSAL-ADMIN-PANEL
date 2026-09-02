@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   SlidersHorizontal,
   Plus,
@@ -13,7 +14,8 @@ import {
   ArrowUpDown,
   Filter,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { Attribute } from '@/lib/types/commerce';
 import { AttributeService, AttributeFilterParams } from '@/lib/services/attribute-service';
@@ -26,16 +28,27 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 
-export default function AttributesPage() {
+function AttributesPageContent() {
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || searchParams.get('q') || '';
+
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
   // Search, Filter & Sort states
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [activeFilter, setActiveFilter] = useState<AttributeFilterParams['capability']>('all');
   const [sortBy, setSortBy] = useState<AttributeFilterParams['sortBy']>('name');
+
+  // Sync searchQuery when URL search params change (e.g. from Universal Search Bar)
+  useEffect(() => {
+    const q = searchParams.get('search') || searchParams.get('q');
+    if (q !== null && q !== undefined) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   // Drawers and Modals
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
@@ -53,9 +66,11 @@ export default function AttributesPage() {
     onConfirm: () => {},
   });
 
-  // Load Attributes from Service
-  const loadAttributes = async () => {
-    setIsLoading(true);
+  // Load Attributes from Service (Instant Memory Cache)
+  const loadAttributes = async (silent = false) => {
+    if (!silent && attributes.length === 0) {
+      setIsLoading(true);
+    }
     try {
       const data = await AttributeService.getAttributes({
         search: searchQuery,
@@ -70,12 +85,21 @@ export default function AttributesPage() {
     }
   };
 
-  // Re-fetch when filter or sort changes, with debounced search
+  // Re-fetch when filter or sort changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadAttributes();
-    }, 150);
-    return () => clearTimeout(timer);
+    loadAttributes(attributes.length > 0);
+
+    const handleUpdate = () => loadAttributes(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('attributes_updated', handleUpdate);
+      window.addEventListener('storage', handleUpdate);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('attributes_updated', handleUpdate);
+        window.removeEventListener('storage', handleUpdate);
+      }
+    };
   }, [searchQuery, activeFilter, sortBy]);
 
   // Handle Save (Create or Update)
@@ -198,10 +222,20 @@ export default function AttributesPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <Input
             placeholder="Search name, label, or machine key..."
-            className="pl-10 h-10 text-xs"
+            className="pl-10 pr-9 h-10 text-xs"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 rounded-md cursor-pointer"
+              title="Clear filter"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Capability Filter Tabs */}
@@ -318,5 +352,13 @@ export default function AttributesPage() {
       {/* Global Unit Library Explorer Modal */}
       <UnitLibraryModal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} />
     </div>
+  );
+}
+
+export default function AttributesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading attribute library...</div>}>
+      <AttributesPageContent />
+    </Suspense>
   );
 }

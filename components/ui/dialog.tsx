@@ -41,22 +41,22 @@ export function Dialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+        className="fixed inset-0 bg-slate-950/40 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog Box */}
       <div
-        className={`relative w-full ${maxWidthClass} rounded-2xl bg-white p-6 shadow-2xl border border-slate-200/90 z-10 transition-all animate-in zoom-in-95 duration-150`}
+        className={`relative w-full ${maxWidthClass} rounded-3xl liquid-modal-panel p-6 z-10 transition-all animate-in zoom-in-95 duration-200`}
       >
-        <div className="flex items-start justify-between gap-4 pb-3 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-4 pb-3 border-b border-slate-200/60">
           <div>
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h2>
             {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

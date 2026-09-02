@@ -6,8 +6,7 @@ import {
   Package,
   Boxes,
   Edit,
-  Archive,
-  RotateCcw,
+  Trash2,
   Tag,
   Eye,
   ExternalLink
@@ -17,13 +16,15 @@ import { CurrencyService } from '@/lib/services/currency-service';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+import { useRouter } from 'next/navigation';
+
 interface ProductTableViewProps {
   products: Product[];
-  onArchive: (id: string) => void;
-  onRestore: (id: string) => void;
+  onDelete: (id: string, title: string) => void;
 }
 
-export function ProductTableView({ products, onArchive, onRestore }: ProductTableViewProps) {
+export function ProductTableView({ products, onDelete }: ProductTableViewProps) {
+  const router = useRouter();
   const [, setCurrencyTick] = useState(0);
 
   useEffect(() => {
@@ -31,12 +32,13 @@ export function ProductTableView({ products, onArchive, onRestore }: ProductTabl
     window.addEventListener('currency_change', handleCurrencyChange);
     return () => window.removeEventListener('currency_change', handleCurrencyChange);
   }, []);
+
   return (
-    <div className="rounded-3xl bg-white border border-slate-200 shadow-xs overflow-hidden">
+    <div className="rounded-3xl bg-white/80 backdrop-blur-xl border border-white/90 shadow-md shadow-indigo-500/[0.03] ring-1 ring-slate-900/5 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <tr className="bg-slate-50/70 backdrop-blur-sm border-b border-slate-200/80 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               <th className="py-3 px-4">Product</th>
               <th className="py-3 px-4">Category</th>
               <th className="py-3 px-4">Master SKU</th>
@@ -47,7 +49,7 @@ export function ProductTableView({ products, onArchive, onRestore }: ProductTabl
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-xs">
+          <tbody className="divide-y divide-slate-100/80 text-xs">
             {products.map((p) => {
               const isVariable = p.variants && p.variants.length > 0;
               const isArchived = p.status === 'archived';
@@ -64,7 +66,8 @@ export function ProductTableView({ products, onArchive, onRestore }: ProductTabl
               return (
                 <tr
                   key={p.id}
-                  className={`hover:bg-slate-50/60 transition-colors ${
+                  onClick={() => router.push(`/products/${p.id}`)}
+                  className={`hover:bg-indigo-50/40 transition-colors cursor-pointer group ${
                     isArchived ? 'opacity-70 bg-slate-50/40' : ''
                   }`}
                 >
@@ -159,34 +162,25 @@ export function ProductTableView({ products, onArchive, onRestore }: ProductTabl
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 px-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50"
+                          className="h-8 px-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/80 rounded-xl"
                         >
                           <Edit className="w-3.5 h-3.5 mr-1" />
                           <span>Detail</span>
                         </Button>
                       </Link>
 
-                      {isArchived ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onRestore(p.id)}
-                          className="h-8 px-2 text-xs text-emerald-600 hover:bg-emerald-50"
-                          title="Restore product"
-                        >
-                          <RotateCcw className="w-3.5 h-3.5" />
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onArchive(p.id)}
-                          className="h-8 px-2 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                          title="Archive product"
-                        >
-                          <Archive className="w-3.5 h-3.5" />
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(p.id, p.title);
+                        }}
+                        className="h-8 px-2 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 rounded-xl transition-colors cursor-pointer"
+                        title="Delete product"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   </td>
                 </tr>

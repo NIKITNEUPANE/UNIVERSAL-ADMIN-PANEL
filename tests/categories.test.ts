@@ -56,6 +56,15 @@ async function runCategoryTestSuite() {
     assert(kidsClothing !== undefined, 'Kids Clothing is nested under Apparel');
     assert(kidsClothing?.parent_id === apparel?.id, 'Kids Clothing has correct parent_id');
 
+    // Alcohols parent & subcategories
+    const alcohols = tree.find((c) => c.slug === 'alcohols');
+    assert(alcohols !== undefined, 'Alcohols parent category exists');
+    assert(alcohols?.children.length === 4, 'Alcohols has 4 subcategories (Whiskey, Beer, Vodka, Wine)');
+    assert(Boolean(alcohols?.children.some((c) => c.slug === 'whiskey')), 'Whiskey subcategory exists under Alcohols');
+    assert(Boolean(alcohols?.children.some((c) => c.slug === 'beer')), 'Beer subcategory exists under Alcohols');
+    assert(Boolean(alcohols?.children.some((c) => c.slug === 'vodka')), 'Vodka subcategory exists under Alcohols');
+    assert(Boolean(alcohols?.children.some((c) => c.slug === 'wine')), 'Wine subcategory exists under Alcohols');
+
     // --------------------------------------------------------------------------
     // Suite 3: Contextual Requiredness Verification
     // --------------------------------------------------------------------------

@@ -21,7 +21,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[#f8f9fc] text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+      <body className="min-h-screen text-slate-900 font-['Plus_Jakarta_Sans',sans-serif] relative antialiased bg-[#f3f6fa]">
+        <div className="liquid-ambient-canvas" aria-hidden="true" />
         {children}
       </body>
     </html>

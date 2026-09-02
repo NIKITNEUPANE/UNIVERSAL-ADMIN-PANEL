@@ -268,7 +268,7 @@ export function ProductVariantMatrix({
                                 handlePriceChange(v.id, val);
                               }
                             }}
-                            className="w-24 h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:border-slate-300 transition-colors"
+                            className="w-24 h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:border-slate-300 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </td>
@@ -290,7 +290,7 @@ export function ProductVariantMatrix({
                             type="number"
                             value={v.inventory_quantity || 0}
                             onChange={(e) => handleStockChange(v.id, Number(e.target.value))}
-                            className="w-16 h-8 text-center rounded-lg border border-slate-200 bg-white font-mono font-bold text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-16 h-8 text-center rounded-lg border border-slate-200 bg-white font-mono font-bold text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             min={0}
                           />
 
