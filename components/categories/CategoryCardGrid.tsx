@@ -580,93 +580,43 @@ export function CategoryCardGrid({
                   </div>
                 </div>
 
-                {/* 2. Details Section (Title, Slug, Description, Subcategories, Specs) */}
-                <div className="px-1 space-y-1.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
-                        {item.name}
-                      </h3>
-                      <span className="font-mono text-[10px] text-slate-400 block mt-0.5">
-                        #{item.slug}
-                      </span>
-                    </div>
-                  </div>
+                {/* 2. Details Section (Clean, De-congested, Sub-categories in Dim Text) */}
+                <div className="pt-2.5 px-1 space-y-1">
+                  <h3 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 tracking-tight">
+                    {item.name}
+                  </h3>
 
-                  {/* Description Snippet */}
-                  {item.description && (
-                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed font-normal">
-                      {item.description}
+                  {/* Sub-categories displayed in clean, non-congested dim text */}
+                  {isParentCard ? (
+                    childCategories.length > 0 ? (
+                      <p
+                        className="text-xs text-slate-500 font-medium line-clamp-1 leading-normal"
+                        title={childCategories.map((c) => c.name).join(', ')}
+                      >
+                        {childCategories.map((c) => c.name).join(', ')}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-400 font-medium">
+                        0 sub-categories
+                      </p>
+                    )
+                  ) : parent ? (
+                    <p className="text-xs text-slate-400 font-medium line-clamp-1">
+                      Sub-category of {parent.name}
                     </p>
-                  )}
-
-                  {/* Subcategories Quick Preview Chips (For Department Cards) */}
-                  {isParentCard && childCategories.length > 0 && (
-                    <div className="pt-1 flex items-center gap-1.5 flex-wrap">
-                      {childCategories.slice(0, 3).map((sub) => (
-                        <span
-                          key={sub.id}
-                          className="px-2 py-0.5 rounded-lg bg-slate-100/90 text-slate-700 text-[10px] font-semibold border border-slate-200/60"
-                        >
-                          {sub.name}
-                        </span>
-                      ))}
-                      {childCategories.length > 3 && (
-                        <span className="px-1.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-100">
-                          +{childCategories.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Attached Specifications Preview Chips */}
-                  {attachedAttributes.length > 0 && (
-                    <div className="pt-0.5 flex items-center gap-1 flex-wrap">
-                      {attachedAttributes.slice(0, 2).map((config) => {
-                        const attrName = config.attribute?.name || 'Specification';
-                        return (
-                          <span
-                            key={config.id}
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-medium border flex items-center gap-1 ${
-                              config.is_required
-                                ? 'bg-rose-50 text-rose-700 border-rose-200/80 font-semibold'
-                                : 'bg-slate-50 text-slate-600 border-slate-200/60'
-                            }`}
-                          >
-                            <span>{attrName}</span>
-                            {config.is_required && (
-                              <span className="text-[8px] text-rose-500 font-extrabold uppercase">Req</span>
-                            )}
-                          </span>
-                        );
-                      })}
-                      {attachedAttributes.length > 2 && (
-                        <span className="text-[10px] text-slate-400 font-medium pl-0.5">
-                          +{attachedAttributes.length - 2} specs
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
               {/* 3. Bottom Meta & Action Footer */}
-              <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-slate-700 flex items-center gap-1 text-[11px]">
-                    <Package className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>{productCount} {productCount === 1 ? 'product' : 'products'}</span>
-                  </span>
-                  {isParentCard && (
-                    <>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-slate-500 font-medium text-[11px]">{subCount} {subCount === 1 ? 'sub-category' : 'sub-categories'}</span>
-                    </>
-                  )}
-                </div>
+              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1">
+                <span className="font-semibold text-slate-700 flex items-center gap-1.5 text-xs">
+                  <Package className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>{productCount} {productCount === 1 ? 'product' : 'products'}</span>
+                </span>
 
-                <div className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
-                  <span>{isParentCard ? 'Sub-Categories' : 'View Hub'}</span>
+                <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
+                  <span>{isParentCard ? 'Explore' : 'View Hub'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>
