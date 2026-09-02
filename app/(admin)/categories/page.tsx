@@ -297,6 +297,22 @@ export default function CategoriesPage() {
   const archivedCount = categories.filter((c) => c.status === 'archived').length;
   const totalLinkedSpecs = categories.reduce((acc, c) => acc + (c.attributes?.length || 0), 0);
 
+  // Sub-category portal metrics when drilled into a category
+  const drilledSubcategories = useMemo(() => {
+    if (!activeDrilledCategory) return [];
+    return categories.filter((c) => c.parent_id === activeDrilledCategory.id && c.status !== 'archived');
+  }, [categories, activeDrilledCategory]);
+
+  const drilledSubcategoriesCount = drilledSubcategories.length;
+
+  const drilledProductsCount = useMemo(() => {
+    if (!activeDrilledCategory) return 0;
+    const subIds = new Set([activeDrilledCategory.id, ...drilledSubcategories.map((c) => c.id)]);
+    return productsList.filter((p) => p.category_id && subIds.has(p.category_id)).length;
+  }, [activeDrilledCategory, drilledSubcategories, productsList]);
+
+  const drilledAttributesCount = activeDrilledCategory?.attributes?.length || 0;
+
   // Total visible categories in filtered tree
   const totalVisibleCount = useMemo(() => {
     return filteredTree.reduce((sum, p) => sum + 1 + p.children.length, 0);
@@ -307,22 +323,27 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {viewMode === 'card' && activeDrilledCategory ? (
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-            <button
-              type="button"
-              onClick={() => setDrilledCategoryId(null)}
-              className="text-base sm:text-lg font-semibold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
-            >
-              Categories
-            </button>
-            <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-300 shrink-0" />
-            <span className="text-base sm:text-lg font-semibold text-indigo-600">
-              {activeDrilledCategory.name}
-            </span>
-            <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-300 shrink-0" />
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
-              Sub-Category
-            </h1>
+          <div>
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setDrilledCategoryId(null)}
+                className="text-base sm:text-lg font-semibold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+              >
+                Categories
+              </button>
+              <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-300 shrink-0" />
+              <span className="text-base sm:text-lg font-semibold text-indigo-600">
+                {activeDrilledCategory.name}
+              </span>
+              <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-300 shrink-0" />
+              <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                Sub-Category
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Sub-categories and catalog products inside {activeDrilledCategory.name}.
+            </p>
           </div>
         ) : (
           <div>
@@ -330,7 +351,7 @@ export default function CategoriesPage() {
               Categories
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Organize catalog hierarchy, nested subcategories, and linked specifications.
+              Organize catalog hierarchy, nested sub-categories, and category attributes.
             </p>
           </div>
         )}
@@ -368,7 +389,7 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* Executive Metric Cards (Liquid Glass Dashboard Stats) */}
+      {/* Executive Metric Cards (Liquid Glass Dashboard Stats - Contextual to Current Portal) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1: Hierarchy Structure */}
         <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-indigo-50/20 to-white flex items-center gap-3.5 group hover:border-indigo-300 transition-all">
@@ -377,18 +398,22 @@ export default function CategoriesPage() {
           </div>
           <div className="min-w-0">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              Categories
+              {activeDrilledCategory ? 'Sub-Categories' : 'Categories'}
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-xl font-black text-slate-900 font-mono">
-                {totalRootCount}
+                {activeDrilledCategory ? drilledSubcategoriesCount : totalRootCount}
               </span>
               <span className="text-xs font-semibold text-slate-500">
-                Categories
+                {activeDrilledCategory
+                  ? drilledSubcategoriesCount === 1 ? 'Sub-Category' : 'Sub-Categories'
+                  : 'Categories'}
               </span>
             </div>
-            <span className="text-[11px] text-indigo-600 font-medium block mt-0.5">
-              {totalSubcategoriesCount} Sub-Categories
+            <span className="text-[11px] text-indigo-600 font-medium block mt-0.5 truncate">
+              {activeDrilledCategory
+                ? `In ${activeDrilledCategory.name}`
+                : `${totalSubcategoriesCount} Sub-Categories`}
             </span>
           </div>
         </div>
@@ -400,41 +425,45 @@ export default function CategoriesPage() {
           </div>
           <div className="min-w-0">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              Catalog Items
+              {activeDrilledCategory ? 'Portal Products' : 'Catalog Items'}
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-xl font-black text-slate-900 font-mono">
-                {totalProductsCount}
+                {activeDrilledCategory ? drilledProductsCount : totalProductsCount}
               </span>
               <span className="text-xs font-semibold text-slate-500">
                 Products
               </span>
             </div>
-            <span className="text-[11px] text-emerald-600 font-medium block mt-0.5">
-              Mapped in active categories
+            <span className="text-[11px] text-emerald-600 font-medium block mt-0.5 truncate">
+              {activeDrilledCategory
+                ? `Mapped to ${activeDrilledCategory.name}`
+                : 'Mapped in active categories'}
             </span>
           </div>
         </div>
 
-        {/* Metric 3: Linked Specifications */}
+        {/* Metric 3: Linked Attributes (Never "spec" or "specifications") */}
         <div className="liquid-glass-card rounded-2xl p-4 border border-slate-200/90 shadow-2xs bg-gradient-to-br from-white via-violet-50/20 to-white flex items-center gap-3.5 group hover:border-violet-300 transition-all">
           <div className="w-11 h-11 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
             <SlidersHorizontal className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              Specifications
+              {activeDrilledCategory ? 'Category Attributes' : 'Attributes'}
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-xl font-black text-slate-900 font-mono">
-                {totalLinkedSpecs}
+                {activeDrilledCategory ? drilledAttributesCount : totalLinkedSpecs}
               </span>
               <span className="text-xs font-semibold text-slate-500">
-                Linked Rules
+                Attributes
               </span>
             </div>
-            <span className="text-[11px] text-violet-600 font-medium block mt-0.5">
-              Enforcing product schemas
+            <span className="text-[11px] text-violet-600 font-medium block mt-0.5 truncate">
+              {activeDrilledCategory
+                ? `Active for ${activeDrilledCategory.name}`
+                : 'Enforcing category rules'}
             </span>
           </div>
         </div>
@@ -446,19 +475,21 @@ export default function CategoriesPage() {
           </div>
           <div className="min-w-0">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              Catalog Status
+              {activeDrilledCategory ? 'Portal Status' : 'Catalog Status'}
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-xl font-black text-slate-900 font-mono">
-                {activeCount}
+              <span className="text-xl font-black text-slate-900 font-mono capitalize">
+                {activeDrilledCategory ? activeDrilledCategory.status : activeCount}
               </span>
               <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Active
               </span>
             </div>
-            <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
-              {archivedCount > 0 ? `${archivedCount} archived categories` : '100% catalog healthy'}
+            <span className="text-[11px] text-slate-500 font-medium block mt-0.5 truncate">
+              {activeDrilledCategory
+                ? `${activeDrilledCategory.name} is operational`
+                : (archivedCount > 0 ? `${archivedCount} archived categories` : '100% catalog healthy')}
             </span>
           </div>
         </div>
@@ -722,15 +753,15 @@ export default function CategoriesPage() {
 
                   {/* Right Side: Specs Preview & Actions */}
                   <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center">
-                    {/* Inherited Specs Badge Button */}
+                    {/* Inherited Attributes Badge Button */}
                     <button
                       type="button"
                       onClick={() => setAttributeDrawerCategory(parent)}
                       className="liquid-button-glass h-8 px-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-indigo-600 flex items-center gap-1.5 transition-colors cursor-pointer"
-                      title="Manage Category Specs"
+                      title="Manage Category Attributes"
                     >
                       <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500" />
-                      <span>Specs ({parentAttributes.length})</span>
+                      <span>Attributes ({parentAttributes.length})</span>
                     </button>
 
                     <button
@@ -781,7 +812,7 @@ export default function CategoriesPage() {
                   <div className="px-4 sm:px-5 py-2 bg-white/20 border-t border-b border-white/60 flex items-center gap-1.5 flex-wrap text-xs">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
                       <Tag className="w-3 h-3 text-indigo-500" />
-                      Inherited Specs:
+                      Inherited Attributes:
                     </span>
                     {parentAttributes.map((link) => (
                       <span
@@ -880,7 +911,7 @@ export default function CategoriesPage() {
                                   className="liquid-button-glass h-7 text-[11px] font-semibold px-2.5 rounded-lg text-slate-700 hover:text-indigo-600 flex items-center gap-1 cursor-pointer"
                                 >
                                   <SlidersHorizontal className="w-3 h-3 text-indigo-500" />
-                                  <span>Specs ({subAttrs.length})</span>
+                                  <span>Attributes ({subAttrs.length})</span>
                                 </button>
                                 <Button
                                   variant="ghost"

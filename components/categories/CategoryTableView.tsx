@@ -44,7 +44,7 @@ export function CategoryTableView({
               <th className="py-3 px-4">Level</th>
               <th className="py-3 px-4">Hierarchy Path</th>
               <th className="py-3 px-4">Sort Order</th>
-              <th className="py-3 px-4">Attached Specs</th>
+              <th className="py-3 px-4">Attached Attributes</th>
               <th className="py-3 px-4 text-center">Status</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
@@ -124,7 +124,7 @@ export function CategoryTableView({
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-2xs cursor-pointer"
                           >
                             <SlidersHorizontal className="w-3 h-3 text-indigo-500" />
-                            <span>{attributes.length} Specs</span>
+                            <span>{attributes.length} Attributes</span>
                           </button>
                           {requiredCount > 0 && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-rose-50 border border-rose-200 text-rose-700">
@@ -172,7 +172,7 @@ export function CategoryTableView({
                         size="sm"
                         onClick={() => onManageAttributes(c)}
                         className="h-8 px-2 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl"
-                        title="Manage specifications"
+                        title="Manage attributes"
                       >
                         <SlidersHorizontal className="w-3.5 h-3.5" />
                       </Button>

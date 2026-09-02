@@ -289,7 +289,7 @@ export function CategoryAttributesDrawer({
       isOpen={isOpen}
       onClose={onClose}
       title={`Subcategory Hub: ${category.name}`}
-      description="Manage products, specifications, and schema rules for this category."
+      description="Manage products and category attributes for this category."
       width="xl"
     >
       <div className="space-y-5 pb-6 animate-in fade-in duration-150">
@@ -336,7 +336,7 @@ export function CategoryAttributesDrawer({
                 </span>
                 <span className="text-slate-300">•</span>
                 <span className="font-medium text-slate-500">
-                  {attachedAttributes.length} specs
+                  {attachedAttributes.length} attributes
                 </span>
               </div>
             </div>
@@ -393,7 +393,7 @@ export function CategoryAttributesDrawer({
             }`}
           >
             <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
-            <span>Specifications & Rules</span>
+            <span>Category Attributes</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                 activeTab === 'specs'
@@ -543,7 +543,7 @@ export function CategoryAttributesDrawer({
                   <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                     {productSearch
                       ? 'Try clearing your search query to see all products in this subcategory.'
-                      : `Products added under ${category.name} will automatically inherit all specifications configured in the Specifications tab.`}
+                      : `Products added under ${category.name} will automatically inherit all attributes configured in the Attributes tab.`}
                   </p>
                 </div>
                 <Link
@@ -568,7 +568,7 @@ export function CategoryAttributesDrawer({
               </div>
               <div className="text-xs text-indigo-950 leading-relaxed space-y-1 flex-1">
                 <p className="font-bold text-slate-900">
-                  Contextual Category Attribute Specifications
+                  Contextual Category Attributes
                 </p>
                 <p className="text-slate-600">
                   • Attributes attached here will automatically be suggested when creating products in <strong>{category.name}</strong>.<br />
@@ -585,7 +585,7 @@ export function CategoryAttributesDrawer({
                     1
                   </span>
                   <h3 className="text-sm font-bold text-slate-900">
-                    Attached Specifications ({attachedAttributes.length})
+                    Attached Attributes ({attachedAttributes.length})
                   </h3>
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium">
@@ -596,9 +596,9 @@ export function CategoryAttributesDrawer({
               {attachedAttributes.length === 0 ? (
                 <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-2">
                   <SlidersHorizontal className="w-6 h-6 text-slate-400 mx-auto" />
-                  <p className="text-xs font-semibold text-slate-700">No specifications attached yet.</p>
+                  <p className="text-xs font-semibold text-slate-700">No attributes attached yet.</p>
                   <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
-                    Attach global attributes below to enable product specifications and variant options for this category.
+                    Attach global attributes below to enable product attributes and variant options for this category.
                   </p>
                 </div>
               ) : (
@@ -687,7 +687,7 @@ export function CategoryAttributesDrawer({
                     2
                   </span>
                   <h3 className="text-sm font-bold text-slate-900">
-                    + Attach Specification from Global Library
+                    + Attach Attribute from Global Library
                   </h3>
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium">
@@ -847,7 +847,7 @@ export function CategoryAttributesDrawer({
                       Required for this category
                     </span>
                     <span className="text-[10px] text-slate-500">
-                      Products in this category will be prompted to fill this specification.
+                      Products in this category will be prompted to fill this attribute.
                     </span>
                   </div>
                   <Switch

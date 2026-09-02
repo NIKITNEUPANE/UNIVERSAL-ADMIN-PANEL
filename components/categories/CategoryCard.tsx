@@ -117,7 +117,7 @@ export function CategoryCard({
           <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
             <span className="flex items-center gap-1">
               <SlidersHorizontal className="w-3 h-3 text-indigo-500" />
-              <span>Specs ({attributes.length})</span>
+              <span>Attributes ({attributes.length})</span>
             </span>
             {requiredCount > 0 && (
               <span className="text-[9px] font-extrabold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded">
@@ -147,7 +147,7 @@ export function CategoryCard({
               )}
             </div>
           ) : (
-            <p className="text-[10px] text-slate-400 italic">No specifications linked</p>
+            <p className="text-[10px] text-slate-400 italic">No attributes linked</p>
           )}
 
           {typeof subcategoriesCount === 'number' && (
@@ -167,7 +167,7 @@ export function CategoryCard({
           className="flex-1 py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 font-bold text-[11px] border border-indigo-200/80 flex items-center justify-center gap-1 transition-all cursor-pointer"
         >
           <SlidersHorizontal className="w-3 h-3" />
-          <span>Specs ({attributes.length})</span>
+          <span>Attributes ({attributes.length})</span>
         </button>
 
         <button

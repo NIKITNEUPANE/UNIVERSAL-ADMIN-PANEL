@@ -65,8 +65,8 @@ const CATEGORY_STEPS: StepDef[] = [
   {
     id: 'specs',
     number: 3,
-    label: 'Specifications',
-    subtitle: 'Attributes template',
+    label: 'Attributes',
+    subtitle: 'Category attributes',
     icon: Layers,
   },
 ];
@@ -462,8 +462,8 @@ export function CategoryFormModal({
                 {isSubcategoryMode
                   ? parentCategory
                     ? `Creating subcategory auto-linked under ${parentCategory.name}.`
-                    : 'Configure subcategory taxonomy and specifications.'
-                  : 'Configure category taxonomy, display order, and specifications.'}
+                    : 'Configure subcategory taxonomy and category attributes.'
+                  : 'Configure category taxonomy, display order, and category attributes.'}
               </p>
             </div>
           </div>
@@ -899,19 +899,19 @@ export function CategoryFormModal({
                       3
                     </span>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                      Product Specifications & Attributes
+                      Product Attributes
                     </h3>
                   </div>
                   <span className="text-xs text-slate-600 font-semibold">
-                    {selectedAttributes.length} specifications attached
+                    {selectedAttributes.length} attributes attached
                   </span>
                 </div>
 
-                {/* 1-Click Quick Add Specifications Card with +Add at Top Right */}
+                {/* 1-Click Quick Add Attributes Card with +Add at Top Right */}
                 <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs relative">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-800">
-                      ⚡ 1-Click Quick Add Specifications:
+                      ⚡ 1-Click Quick Add Attributes:
                     </span>
 
                     {/* + Add Button at Top Right */}
@@ -923,7 +923,7 @@ export function CategoryFormModal({
                           setMoreSearchQuery('');
                         }}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200/80 transition-all cursor-pointer shadow-2xs group"
-                        title="Add other catalog specifications"
+                        title="Add other catalog attributes"
                       >
                         <Plus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
                         <span>Add</span>
@@ -940,7 +940,7 @@ export function CategoryFormModal({
                               type="text"
                               value={moreSearchQuery}
                               onChange={(e) => setMoreSearchQuery(e.target.value)}
-                              placeholder="Search other specifications..."
+                              placeholder="Search other attributes..."
                               className="text-xs w-full bg-transparent outline-none font-medium placeholder:text-slate-400"
                               autoFocus
                             />
@@ -977,8 +977,8 @@ export function CategoryFormModal({
                             ) : (
                               <div className="py-4 px-3 text-center text-xs text-slate-400">
                                 {moreSearchQuery
-                                  ? 'No matching specifications found.'
-                                  : 'All other catalog specifications are already linked.'}
+                                  ? 'No matching attributes found.'
+                                  : 'All other catalog attributes are already linked.'}
                               </div>
                             )}
                           </div>
@@ -1005,7 +1005,7 @@ export function CategoryFormModal({
                       );
                     })}
                     {quickAddAttributes.length === 0 && otherAttributes.length === 0 && (
-                      <span className="text-xs text-slate-400">All quick specifications have been added.</span>
+                      <span className="text-xs text-slate-400">All quick attributes have been added.</span>
                     )}
                   </div>
                 </div>
@@ -1089,7 +1089,7 @@ export function CategoryFormModal({
                   </div>
                 ) : (
                   <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400 bg-white">
-                    No specifications attached yet. Click one of the quick add buttons above or search to link specifications.
+                    No attributes attached yet. Click one of the quick add buttons above or search to link attributes.
                   </div>
                 )}
               </div>
@@ -1102,7 +1102,7 @@ export function CategoryFormModal({
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-semibold text-slate-600">
                 Step {currentStepIdx + 1} of 3 • {CATEGORY_STEPS[currentStepIdx].label}
-                {selectedAttributes.length > 0 && ` (${selectedAttributes.length} specs)`}
+                {selectedAttributes.length > 0 && ` (${selectedAttributes.length} attributes)`}
               </span>
             </div>
 

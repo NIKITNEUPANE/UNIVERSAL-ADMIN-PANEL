@@ -362,7 +362,7 @@ export function CategoryCardGrid({
               <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-1.5 flex-wrap">
                 <span className="font-semibold text-slate-800 flex items-center gap-1.5">
                   <FolderTree className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>{displayCategories.length} {displayCategories.length === 1 ? 'Subcategory' : 'Subcategories'}</span>
+                  <span>{displayCategories.length} {displayCategories.length === 1 ? 'Sub-Category' : 'Sub-Categories'}</span>
                 </span>
                 <span className="text-slate-300">•</span>
                 <span className="font-mono text-slate-500 text-[11px]">#{drilledCategory.slug}</span>
@@ -371,7 +371,7 @@ export function CategoryCardGrid({
                     <span className="text-slate-300">•</span>
                     <span className="text-indigo-600 font-medium flex items-center gap-1">
                       <SlidersHorizontal className="w-3 h-3" />
-                      <span>{drilledCategory.attributes.length} schema specifications</span>
+                      <span>{drilledCategory.attributes.length} category attributes</span>
                     </span>
                   </>
                 )}
@@ -531,7 +531,7 @@ export function CategoryCardGrid({
                           className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 flex items-center gap-2 font-medium cursor-pointer"
                         >
                           <SlidersHorizontal className="w-3.5 h-3.5 text-violet-600" />
-                          <span>Manage Specs</span>
+                          <span>Manage Attributes</span>
                         </button>
 
                         {isParentCard && (
