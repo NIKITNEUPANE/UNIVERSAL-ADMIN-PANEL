@@ -10,6 +10,7 @@ import { ProductMediaItem } from '@/lib/types/commerce';
 
 export interface StorageAsset {
   id: string;
+  key?: string; // Cloudflare R2 object key
   name: string;
   url: string;
   category: 'apparel' | 'beverage' | 'tech' | 'cosmetics' | 'textures' | 'general';
@@ -210,21 +211,100 @@ export class MediaService {
   }
 
   /**
-   * Process and upload a file from device / drag-and-drop into internal storage
+   * Fetch live assets from Cloudflare R2 bucket and sync with local store
    */
-  static async uploadFile(file: File, category: StorageAsset['category'] = 'general'): Promise<StorageAsset> {
-    return new Promise((resolve, reject) => {
-      // Validate image type
-      if (!file.type.startsWith('image/')) {
-        reject(new Error(`File '${file.name}' is not an image.`));
-        return;
+  static async fetchLiveR2Assets(category?: string): Promise<StorageAsset[]> {
+    try {
+      if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+        const query = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
+        const res = await fetch(`/api/media/list${query}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.assets)) {
+            const current = getStoredAssets();
+            const r2Keys = new Set(data.assets.map((a: any) => a.key));
+            // Retain local/seed assets that are not in R2
+            const nonR2 = current.filter((item) => !item.key || !r2Keys.has(item.key));
+            const merged = [...data.assets, ...nonR2];
+            persistAssets(merged);
+            return merged;
+          }
+        }
       }
+    } catch (e) {
+      console.warn('Could not fetch live R2 assets, using local fallback:', e);
+    }
+    return getStoredAssets();
+  }
 
+  /**
+   * Process and upload a file to Cloudflare R2 object storage
+   */
+  static async uploadFile(
+    file: File,
+    category: StorageAsset['category'] = 'general',
+    folder: 'products' | 'categories' | 'media' = 'media',
+    colorName?: string
+  ): Promise<StorageAsset> {
+    // Validate image type
+    if (!file.type.startsWith('image/')) {
+      throw new Error(`File '${file.name}' is not an image.`);
+    }
+
+    // 10MB maximum limit
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error(`File size exceeds the 10MB limit (size: ${(file.size / (1024 * 1024)).toFixed(2)}MB).`);
+    }
+
+    // Attempt direct upload via Next.js Cloudflare R2 API route
+    if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', folder);
+        formData.append('category', category);
+        if (colorName) formData.append('color_name', colorName);
+
+        const res = await fetch('/api/media/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.asset) {
+            const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+            const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+            const newR2Asset: StorageAsset = {
+              id: json.asset.id,
+              key: json.asset.key,
+              name: capitalized,
+              url: json.asset.url,
+              category: category,
+              tags: cleanName.toLowerCase().split(/\s+/).filter(Boolean),
+              file_size: json.asset.file_size || file.size,
+              mime_type: json.asset.mime_type || file.type,
+              created_at: json.asset.created_at || new Date().toISOString(),
+            };
+
+            const current = getStoredAssets();
+            const updated = [newR2Asset, ...current];
+            persistAssets(updated);
+            return newR2Asset;
+          }
+        }
+      } catch (err) {
+        console.warn('Direct Cloudflare R2 upload route failed, falling back to client reader:', err);
+      }
+    }
+
+    // Fallback: Client FileReader DataURL (useful for test runs or offline dev)
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         const rawDataUrl = reader.result as string;
 
-        // If not running in browser with Image/document available, resolve immediately
         if (typeof window === 'undefined' || typeof Image === 'undefined') {
           const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
           const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
@@ -243,7 +323,6 @@ export class MediaService {
           return;
         }
 
-        // Compress and optimize image using canvas (max 1200px dimension, WebP/JPEG 0.85) to ensure safety in localStorage
         const img = new Image();
         img.onload = () => {
           try {
@@ -292,7 +371,7 @@ export class MediaService {
             } else {
               throw new Error('Canvas 2D context unavailable');
             }
-          } catch (e) {
+          } catch {
             const assetId = `asset-up-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
             const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
             const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
@@ -356,10 +435,23 @@ export class MediaService {
   }
 
   /**
-   * Delete asset from internal storage
+   * Delete asset from internal storage and Cloudflare R2
    */
-  static deleteAsset(id: string): void {
+  static async deleteAsset(id: string, key?: string): Promise<void> {
     const current = getStoredAssets();
+    const target = current.find((a) => a.id === id);
+    const targetKey = key || target?.key;
+
+    if (targetKey && typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+      try {
+        await fetch(`/api/media/delete?key=${encodeURIComponent(targetKey)}`, {
+          method: 'DELETE',
+        });
+      } catch (e) {
+        console.warn('Could not delete asset from Cloudflare R2:', e);
+      }
+    }
+
     const updated = current.filter((a) => a.id !== id);
     persistAssets(updated);
   }
@@ -377,7 +469,7 @@ export class MediaService {
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
       try {
-        const asset = await this.uploadFile(file, 'apparel');
+        const asset = await this.uploadFile(file, 'apparel', 'products', colorMeta?.name);
         mediaItems.push({
           id: `media-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
           url: asset.url,

@@ -249,7 +249,7 @@ export function CategoryFormModal({
     setIsUploadingImage(true);
     setErrorMessage(null);
     try {
-      const asset = await MediaService.uploadFile(file, 'general');
+      const asset = await MediaService.uploadFile(file, 'general', 'categories', slug || 'category');
       setImageUrl(asset.url);
       setImageFileName(file.name);
     } catch (err: any) {

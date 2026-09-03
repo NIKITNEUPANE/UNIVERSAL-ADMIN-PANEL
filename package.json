@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx tests/attributes.test.ts && tsx tests/categories.test.ts && tsx tests/products.test.ts && tsx tests/currency.test.ts && tsx tests/media.test.ts",
+    "test": "tsx tests/attributes.test.ts && tsx tests/categories.test.ts && tsx tests/products.test.ts && tsx tests/currency.test.ts && tsx tests/media.test.ts && tsx tests/r2-storage.test.ts",
     "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1125.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
     "class-variance-authority": "^0.7.1",
